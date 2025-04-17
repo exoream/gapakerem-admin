@@ -92,7 +92,7 @@ const Sidebar = () => {
               <FaChevronDown className={`ml-auto ${isTransaksiOpen ? 'transform rotate-180' : ''}`} />
             </a>
             {isTransaksiOpen && (
-              <ul className="pl-4">
+              <ul className="pl-6">
                 <li className="mb-2">
                   <a
                     href="/booking-open"
