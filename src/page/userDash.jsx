@@ -57,8 +57,8 @@ const UserDash = () => {
 
   return (
     <div className="p-10">
-      <div className="rounded-xl shadow-lg p-6">
-        <div className="flex flex-col md:flex-row justify-between items-center mb-8 gap-4">
+      <div className="rounded-xl shadow-lg p-10">
+        <div className="flex flex-col justify-between items-center mb-8 gap-4">
           <h1 className="text-3xl font-bold text-gray-800">Pengguna</h1>
           <div className="relative w-full md:w-64">
             <input
