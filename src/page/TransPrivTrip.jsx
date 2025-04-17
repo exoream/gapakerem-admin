@@ -5,16 +5,13 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faSearch, faEye, faTrash, faFileAlt } from '@fortawesome/free-solid-svg-icons';
 import { useNavigate, useLocation, useSearchParams } from 'react-router-dom';
 import Pagination from '../components/Pagination';
+import Loading from '../components/Loading';
 const ITEMS_PER_PAGE = 8;
 
 const TranPrivTrip = () => {
   const [openTripData, setOpenTripData] = useState([]);
   const [searchTerm, setSearchTerm] = useState('');
   const [loading, setLoading] = useState(false);
-  const [error, setError] = useState(null);
-  const [popupImage, setPopupImage] = useState('');
-  const [showPopup, setShowPopup] = useState(false);
-
   const navigate = useNavigate();
   const location = useLocation();
   const [searchParams, setSearchParams] = useSearchParams();
@@ -23,11 +20,9 @@ const TranPrivTrip = () => {
   useEffect(() => {
     const fetchData = async () => {
       setLoading(true);
-      setError(null);
+
       try {
         const token = Cookies.get('token');
-        if (!token) throw new Error('Token not found. Silakan login terlebih dahulu.');
-
         const response = await axios.get('https://gapakerem.vercel.app/bookings/?trip_type=private', {
           headers: { Authorization: `Bearer ${token}` },
         });
@@ -40,8 +35,13 @@ const TranPrivTrip = () => {
               try {
                 await updatePaymentStatus(item.id, 'paid', token);
                 return { ...item, payment_status: 'paid' };
-              } catch (err) {
-                console.error(`Gagal update status untuk ID ${item.id}`, err);
+              } catch (error) {
+                console.error("Error Response:", error.response);
+                toast.error(error.response.data.message, {
+                  position: "top-center",
+                  autoClose: 3000,
+                  hideProgressBar: true,
+                });
               }
             }
             return item;
@@ -49,9 +49,13 @@ const TranPrivTrip = () => {
         );
 
         setOpenTripData(updatedBookings);
-      } catch (err) {
-        setError(err.response?.data?.message || err.message || 'Terjadi kesalahan saat mengambil data');
-        setOpenTripData([]);
+      } catch (error) {
+        console.error("Error Response:", error.response);
+        toast.error(error.response.data.message, {
+          position: "top-center",
+          autoClose: 3000,
+          hideProgressBar: true,
+        });
       } finally {
         setLoading(false);
       }
@@ -59,6 +63,8 @@ const TranPrivTrip = () => {
 
     fetchData();
   }, [location]);
+
+  if (loading) return <Loading />;
 
   const updatePaymentStatus = async (id, newStatus, token) => {
     await axios.patch(
@@ -77,16 +83,6 @@ const TranPrivTrip = () => {
     navigate(`/booking/private/${id}`);
   };
 
-  const handleOpenPopup = (imageUrl) => {
-    setPopupImage(imageUrl);
-    setShowPopup(true);
-  };
-
-  const handleClosePopup = () => {
-    setPopupImage('');
-    setShowPopup(false);
-  };
-
   const handlePageChange = (page) => {
     setSearchParams({ page });
   };
@@ -99,109 +95,102 @@ const TranPrivTrip = () => {
   const paginatedData = filteredData.slice((currentPage - 1) * ITEMS_PER_PAGE, currentPage * ITEMS_PER_PAGE);
 
   return (
-    <div className="flex">
-      <div className="w-full p-8">
-        <div className="flex justify-between items-center mb-8">
-          <h1 className="text-3xl font-bold">Private Trip</h1>
-          <div className="relative">
-            <input
-              type="text"
-              placeholder="Search peserta"
-              className="border rounded-full py-2 px-4 pl-10 w-64"
-              value={searchTerm}
-              onChange={(e) => {
-                setSearchTerm(e.target.value);
-                handlePageChange(1); // reset ke halaman 1 saat search berubah
-              }}
-              disabled={loading}
-            />
-            <FontAwesomeIcon icon={faSearch} className="absolute left-3 top-2.5 text-gray-400" />
+    <div className="p-10">
+      <div className="rounded-xl shadow-lg p-10">
+        <div className="w-full p-8">
+          <div className="flex justify-between items-center mb-8">
+            <h1 className="text-3xl font-bold text-gray-800">Open Trip</h1>
+
+            <div className="relative w-full md:w-64">
+              <input
+                type="text"
+                placeholder="Cari transaksi..."
+                className="w-full border border-gray-300 rounded-full py-2 px-4 pl-10 focus:outline-none focus:ring-2 focus:ring-[#FFC100] focus:border-[#FFC100] transition-all"
+                value={searchTerm}
+                onChange={(e) => {
+                  setSearchTerm(e.target.value);
+                  handlePageChange(1);
+                }}
+                disabled={loading}
+              />
+              <FontAwesomeIcon icon={faSearch} className="absolute left-3 top-3 text-gray-400" />
+            </div>
           </div>
-        </div>
 
-        {loading && <div className="text-center py-4 text-gray-600">Loading data...</div>}
-        {error && <div className="text-center py-4 text-red-600 font-semibold">{error}</div>}
-
-        {!loading && !error && (
-          <div className="bg-white shadow-md rounded-lg overflow-hidden">
-            <table className="min-w-full bg-white">
+          <div className="overflow-hidden rounded-xl border border-gray-200">
+            <table className="w-full">
               <thead>
-                <tr>
-                  <th className="py-2 px-4 border-b text-left">Peserta</th>
-                  <th className="py-2 px-4 border-b text-left">No. Hp</th>
-                  <th className="py-2 px-4 border-b text-left">Gunung</th>
-                  <th className="py-2 px-4 border-b text-center">Bukti Pembayaran</th>
-                  <th className="py-2 px-4 border-b text-left">Status</th>
-                  <th className="py-2 px-4 border-b text-center">Aksi</th>
+                <tr className="bg-gradient-to-r from-yellow-500 to-yellow-600 text-white">
+                  <td className="py-4 px-6 text-left font-semibold">No</td>
+                  <th className="py-4 px-6 text-left font-semibold">Peserta</th>
+                  <th className="py-4 px-6 text-left font-semibold">No. Hp</th>
+                  <th className="py-4 px-6 text-left font-semibold">Gunung</th>
+                  <th className="py-4 px-6 text-left font-semibold">Status</th>
+                  <th className="py-4 px-6 text-center font-semibold">Aksi</th>
                 </tr>
               </thead>
               <tbody>
-                {paginatedData.length === 0 ? (
-                  <tr>
-                    <td colSpan={6} className="text-center py-4">Data tidak ditemukan</td>
-                  </tr>
-                ) : (
-                  paginatedData.map((item) => (
-                    <tr key={item.id} className="hover:bg-gray-50">
-                      <td className="py-2 px-4 border-b">{item.participant_name}</td>
-                      <td className="py-2 px-4 border-b">{item.phone_number}</td>
-                      <td className="py-2 px-4 border-b">{item.mountain_name}</td>
-                      <td className="py-2 px-4 border-b text-center">
-                        {item.payment_proof ? (
-                          <button
-                            onClick={() => handleOpenPopup(item.payment_proof)}
-                            className="text-blue-500 hover:text-blue-700"
-                          >
-                            <FontAwesomeIcon icon={faFileAlt} />
-                          </button>
-                        ) : (
-                          <span className="text-red-500">Belum Ada</span>
-                        )}
+                {paginatedData.length > 0 ? (
+                  paginatedData.map((item, index) => (
+                    <tr
+                      key={item.id}
+                      className={`border-b hover:bg-yellow-50 transition-colors ${index % 2 === 0 ? "bg-white" : "bg-gray-50"}`}
+                    >
+                      <td className="py-4 px-6 text-gray-800">{index + 1}</td>
+                      <td className="py-4 px-6 text-gray-800">{item.participant_name}</td>
+                      <td className="py-4 px-6 text-gray-800">{item.phone_number}</td>
+                      <td className="py-4 px-6 text-gray-800">{item.mountain_name}</td>
+                      <td className="py-4 px-6">
+                        <span
+                          className={`px-3 py-1 rounded-full text-sm font-semibold 
+                            ${item.payment_status === 'paid' ? 'bg-green-100 text-green-700' :
+                              item.payment_status === 'unpaid' ? 'bg-yellow-100 text-yellow-700' :
+                                item.payment_status === 'rejected' ? 'bg-red-100 text-red-700' :
+                                  item.payment_status === 'approved' ? 'bg-blue-100 text-blue-700' :
+                                    'bg-gray-100 text-gray-700'}`}
+                        >
+                          {item.payment_status}
+                        </span>
                       </td>
-                      <td className="py-2 px-4 border-b capitalize">{item.payment_status}</td>
-                      <td className="py-2 px-4 border-b text-center space-x-3">
-                        <button
-                          onClick={() => handleViewData(item.id)}
-                          className="text-yellow-500 hover:text-yellow-600"
-                        >
-                          <FontAwesomeIcon icon={faEye} />
-                        </button>
-                        <button
-                          onClick={() => handleDeleteData(item.id)}
-                          className="text-red-500 hover:text-red-600"
-                        >
-                          <FontAwesomeIcon icon={faTrash} />
-                        </button>
+                      <td className="py-4 px-6">
+                        <div className="flex justify-center gap-2">
+                          <button
+                            onClick={() => handleViewData(item.id)}
+                            className="bg-yellow-500 hover:bg-yellow-600 text-white p-2 aspect-square rounded-full transition-all transform hover:scale-110 flex items-center justify-center"
+                            aria-label={`View booking ${item.participant_name}`}
+                          >
+                            <FontAwesomeIcon icon={faEye} />
+                          </button>
+
+                          <button
+                            onClick={() => handleDeleteData(item.id)}
+                            className="bg-red-500 hover:bg-red-600 text-white p-2 aspect-square rounded-full transition-all transform hover:scale-110 flex items-center justify-center"
+                            aria-label={`Delete booking ${item.participant_name}`}
+                          >
+                            <FontAwesomeIcon icon={faTrash} />
+                          </button>
+
+                        </div>
                       </td>
                     </tr>
                   ))
+                ) : (
+                  <tr>
+                    <td colSpan="5" className="text-center py-8 text-gray-500">Tidak ada transaksi yang ditemukan</td>
+                  </tr>
                 )}
               </tbody>
             </table>
-
-            {totalPages > 1 && (
-              <Pagination
-                currentPage={currentPage}
-                totalPages={totalPages}
-                onPageChange={handlePageChange}
-              />
-            )}
           </div>
-        )}
 
-        {showPopup && (
-          <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-            <div className="bg-white p-4 rounded shadow-lg relative">
-              <button
-                onClick={handleClosePopup}
-                className="absolute top-2 right-2 text-gray-500 hover:text-gray-700"
-              >
-                &times;
-              </button>
-              <img src={popupImage} alt="Bukti Pembayaran" className="max-w-full max-h-[80vh]" />
-            </div>
-          </div>
-        )}
+          {totalPages > 1 && (
+            <Pagination
+              currentPage={currentPage}
+              totalPages={totalPages}
+              onPageChange={handlePageChange}
+            />
+          )}
+        </div>
       </div>
     </div>
   );
