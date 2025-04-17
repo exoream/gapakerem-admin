@@ -27,9 +27,6 @@ const GuidePorter = () => {
       setLoading(true);
       try {
         const token = Cookies.get('token');
-        if (!token) {
-          throw new Error('Token not found');
-        }
 
         const [guideResponse, porterResponse] = await Promise.all([
           axios.get('https://gapakerem.vercel.app/guides', {
@@ -110,6 +107,13 @@ const GuidePorter = () => {
 
       setGuides((prevGuides) => [...prevGuides, response.data.data]);
       closePopup();
+
+      toast.success(response.data.message, {
+        position: "top-center",
+        autoClose: 3000,
+        hideProgressBar: true,
+      });
+
     } catch (error) {
       console.error("Error Response:", error.response);
       toast.error(error.response.data.message, {
@@ -140,6 +144,13 @@ const GuidePorter = () => {
         prevGuides.map((guide) => (guide.id === response.data.data.id ? response.data.data : guide))
       );
       closePopup();
+
+      toast.success(response.data.message, {
+        position: "top-center",
+        autoClose: 3000,
+        hideProgressBar: true,
+      });
+
     } catch (error) {
       console.error("Error Response:", error.response);
       toast.error(error.response.data.message, {
@@ -168,6 +179,13 @@ const GuidePorter = () => {
 
       setPorters((prevPorters) => [...prevPorters, response.data.data]);
       closePopup();
+
+      toast.success(response.data.message, {
+        position: "top-center",
+        autoClose: 3000,
+        hideProgressBar: true,
+      });
+
     } catch (error) {
       console.error("Error Response:", error.response);
       toast.error(error.response.data.message, {
@@ -198,6 +216,13 @@ const GuidePorter = () => {
         prevPorters.map((porter) => (porter.id === response.data.data.id ? response.data.data : porter))
       );
       closePopup();
+
+      toast.success(response.data.message, {
+        position: "top-center",
+        autoClose: 3000,
+        hideProgressBar: true,
+      });
+
     } catch (error) {
       console.error("Error Response:", error.response);
       toast.error(error.response.data.message, {
@@ -222,7 +247,6 @@ const GuidePorter = () => {
     return new File([u8arr], filename, { type: mime });
   };
 
-
   const handleDeleteGuide = async (id) => {
     const confirmDelete = window.confirm("Apakah Anda yakin ingin menghapus guide ini?");
     if (confirmDelete) {
@@ -233,6 +257,13 @@ const GuidePorter = () => {
           },
         });
         setGuides((prevGuides) => prevGuides.filter((guide) => guide.id !== id));
+
+        toast.success(confirmDelete.data.message, {
+          position: "top-center",
+          autoClose: 3000,
+          hideProgressBar: true,
+        });
+
       } catch (error) {
         console.error("Error Response:", error.response);
         toast.error(error.response.data.message, {
@@ -254,6 +285,13 @@ const GuidePorter = () => {
           },
         });
         setPorters((prevPorters) => prevPorters.filter((porter) => porter.id !== id));
+
+        toast.success(confirmDelete.data.message, {
+          position: "top-center",
+          autoClose: 3000,
+          hideProgressBar: true,
+        });
+
       } catch (error) {
         console.error("Error Response:", error.response);
         toast.error(error.response.data.message, {

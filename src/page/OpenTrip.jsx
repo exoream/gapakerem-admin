@@ -73,8 +73,13 @@ const OpenTrip = () => {
         },
       });
 
-      alert('Trip berhasil dihapus!');
       fetchTrips(pagination.current_page, searchTerm);
+
+      toast.success("Berhasil hapus trip", {
+        position: "top-center",
+        autoClose: 3000,
+        hideProgressBar: true,
+      });
 
     } catch (error) {
       console.error("Error Response:", error.response);
