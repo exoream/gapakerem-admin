@@ -57,12 +57,12 @@ const DetailPrivateTransaksi = () => {
 
       const response = await axios.patch(
         `https://gapakerem.vercel.app/bookings/${id}/status`,
-        { status: newStatus }, 
+        { status: newStatus },
         {
           headers: { Authorization: `Bearer ${token}` },
         }
       );
-      
+
 
       if (response.data.status) {
         setData((prev) => ({
@@ -101,16 +101,16 @@ const DetailPrivateTransaksi = () => {
     total_price,
     meeting_point,
     payment_proof,
-    status, // Ganti payment_status menjadi status
+    status,
     created_at,
   } = data;
-  
+
 
   const formatCurrency = (num) => (num ? 'Rp ' + num.toString().replace(/\B(?=(\d{3})+(?!\d))/g, '.') : '-');
   const formatDate = (dateString) => (dateString ? new Date(dateString).toLocaleDateString('id-ID') : '-');
 
   const isActionAllowed =
-  !!payment_proof && String(status).toLowerCase().trim() === 'paid';
+    !!payment_proof && String(status).toLowerCase().trim() === 'paid';
 
 
   console.log('DEBUG payment_status:', status);
@@ -158,29 +158,27 @@ const DetailPrivateTransaksi = () => {
           <div className="flex items-center space-x-4">
             <span className="font-semibold">Status</span>
             <span
-              className={`font-semibold ${
-                status === 'approved'
+              className={`font-semibold ${status === 'approved'
                   ? 'text-green-600'
                   : status === 'rejected'
-                  ? 'text-red-600'
-                  : 'text-yellow-600'
-              }`}
+                    ? 'text-red-600'
+                    : 'text-yellow-600'
+                }`}
             >
               {status === 'approved'
                 ? 'Diterima'
                 : status === 'rejected'
-                ? 'Ditolak'
-                : 'Menunggu Aksi'}
+                  ? 'Ditolak'
+                  : 'Menunggu Aksi'}
             </span>
 
             <button
               onClick={() => updateStatus('approved')}
               disabled={!payment_proof || status !== 'paid' || updating}
-              className={`px-4 py-2 rounded text-white transition ${
-                payment_proof && status === 'paid' && !updating
+              className={`px-4 py-2 rounded text-white transition ${payment_proof && status === 'paid' && !updating
                   ? 'bg-green-500 hover:bg-green-600'
                   : 'bg-gray-400 cursor-not-allowed'
-              }`}
+                }`}
             >
               {updating && status !== 'approved' ? 'Memproses...' : 'Terima'}
             </button>
@@ -188,11 +186,10 @@ const DetailPrivateTransaksi = () => {
             <button
               onClick={() => updateStatus('rejected')}
               disabled={!payment_proof || status !== 'paid' || updating}
-              className={`px-4 py-2 rounded text-white transition ${
-                payment_proof && status === 'paid' && !updating
+              className={`px-4 py-2 rounded text-white transition ${payment_proof && status === 'paid' && !updating
                   ? 'bg-red-500 hover:bg-red-600'
                   : 'bg-gray-400 cursor-not-allowed'
-              }`}
+                }`}
             >
               {updating && status !== 'rejected' ? 'Memproses...' : 'Tolak'}
             </button>
