@@ -24,7 +24,7 @@ const Login = () => {
       navigate('/dashboard');
 
     } catch (error) {
-      console.error("Error Response:", error.response);
+      console.error("Error :", error.response);
       toast.error(error.response.data.message, {
         position: "top-center",
         autoClose: 3000,

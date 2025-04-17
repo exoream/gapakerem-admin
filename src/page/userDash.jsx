@@ -4,11 +4,11 @@ import axios from 'axios';
 import Cookies from 'js-cookie';
 import { useNavigate } from 'react-router-dom';
 import Pagination from '../components/Pagination';
+import Loading from '../components/Loading';
 
 const UserDash = () => {
   const [users, setUsers] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState('');
   const [searchTerm, setSearchTerm] = useState('');
   const [currentPage, setCurrentPage] = useState(1);
 
@@ -20,18 +20,17 @@ const UserDash = () => {
       setLoading(true);
       try {
         const token = Cookies.get('token');
-        if (!token) throw new Error('Token not found');
         const response = await axios.get('https://gapakerem.vercel.app/users', {
           headers: { Authorization: `Bearer ${token}` }
         });
-
-        if (response.data.status) {
-          setUsers(response.data.data.users);
-        } else {
-          setError(response.data.message);
-        }
-      } catch (err) {
-        setError(err.response?.data?.message || err.message);
+        setUsers(response.data.data.users);
+      } catch (error) {
+        console.error("Error Response:", error.response);
+        toast.error(error.response.data.message, {
+          position: "top-center",
+          autoClose: 3000,
+          hideProgressBar: true,
+        });
       } finally {
         setLoading(false);
       }
@@ -54,19 +53,18 @@ const UserDash = () => {
     navigate(`/user/${id}`);
   };
 
-  if (loading) return <div>Loading...</div>;
-  if (error) return <div>Error: {error}</div>;
+  if (loading) return <Loading />;
 
   return (
-    <div className="flex">
-      <div className="w-4/5 p-8">
-        <div className="flex justify-between items-center mb-8">
-          <h1 className="text-3xl font-bold">User</h1>
-          <div className="relative">
+    <div className="p-10">
+      <div className="rounded-xl shadow-lg p-6">
+        <div className="flex flex-col md:flex-row justify-between items-center mb-8 gap-4">
+          <h1 className="text-3xl font-bold text-gray-800">Pengguna</h1>
+          <div className="relative w-full md:w-64">
             <input
               type="text"
-              placeholder="Search"
-              className="border rounded-full py-2 px-4 pl-10"
+              placeholder="Cari pengguna..."
+              className="w-full border border-gray-300 rounded-full py-2 px-4 pl-10 focus:outline-none focus:ring-2 focus:ring-[#FFC100] focus:border-[#FFC100] transition-all"
               value={searchTerm}
               onChange={(e) => {
                 setSearchTerm(e.target.value);
@@ -77,40 +75,50 @@ const UserDash = () => {
           </div>
         </div>
 
-        <table className="w-full bg-white rounded-lg shadow-lg">
-          <thead>
-            <tr className="border-b">
-              <th className="py-4 px-6 border-r">Nama</th>
-              <th className="py-4 px-6 border-r">No. Hp</th>
-              <th className="py-4 px-6 border-r">Email</th>
-              <th className="py-4 px-6">Aksi</th>
-            </tr>
-          </thead>
-          <tbody>
-            {currentData.length > 0 ? (
-              currentData.map((user) => (
-                <tr key={user.id} className="border-b">
-                  <td className="py-4 px-6 border-r">{user.name}</td>
-                  <td className="py-4 px-6 border-r">{user.number}</td>
-                  <td className="py-4 px-6 border-r">{user.email}</td>
-                  <td className="py-4 px-6 text-center">
-                    <button
-                      onClick={() => handleViewUser(user.id)}
-                      className="text-yellow-500 hover:text-yellow-600"
-                      aria-label={`View user ${user.name}`}
-                    >
-                      <FaEye />
-                    </button>
-                  </td>
-                </tr>
-              ))
-            ) : (
-              <tr>
-                <td colSpan="4" className="text-center py-4">No users found</td>
+        <div className="overflow-hidden rounded-xl border border-gray-200">
+          <table className="w-full">
+            <thead>
+              <tr className="bg-gradient-to-r from-yellow-500 to-yellow-600 text-white">
+                <th className="py-4 px-6 text-left font-semibold">No</th>
+                <th className="py-4 px-6 text-left font-semibold">Nama</th>
+                <th className="py-4 px-6 text-left font-semibold">No. Hp</th>
+                <th className="py-4 px-6 text-left font-semibold">Email</th>
+                <th className="py-4 px-6 text-center font-semibold">Aksi</th>
               </tr>
-            )}
-          </tbody>
-        </table>
+            </thead>
+            <tbody>
+              {currentData.length > 0 ? (
+                currentData.map((user, index) => (
+                  <tr
+                    key={user.id}
+                    className={`border-b hover:bg-yellow-50 transition-colors ${index % 2 === 0 ? "bg-white" : "bg-gray-50"}`}
+                  >
+                    <td className="py-4 px-6 text-gray-800">{index + 1}</td>
+                    <td className="py-4 px-6 text-gray-800">{user.name}</td>
+                    <td className="py-4 px-6 text-gray-600">{user.number}</td>
+                    <td className="py-4 px-6 text-gray-600">{user.email}</td>
+                    <td className="py-4 px-6">
+                      <div className="flex justify-center">
+                        <button
+                          onClick={() => handleViewUser(user.id)}
+                          className="bg-yellow-400 hover:bg-yellow-500 text-white p-2 rounded-full transition-all transform hover:scale-110"
+                          aria-label={`View user ${user.name}`}
+                        >
+                          <FaEye />
+                        </button>
+                      </div>
+                    </td>
+                  </tr>
+                ))
+              ) : (
+                <tr>
+                  <td colSpan="5" className="text-center py-8 text-gray-500">Tidak ada pengguna yang ditemukan</td>
+                </tr>
+              )}
+            </tbody>
+
+          </table>
+        </div>
 
         {totalPages > 1 && (
           <Pagination
