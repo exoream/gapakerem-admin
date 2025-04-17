@@ -36,7 +36,7 @@ const ViewPrivateTrip = () => {
   return (
     <div className="p-10 flex items-center justify-center">
       <div className="w-2/3 rounded-xl shadow-lg p-10">
-        <h2 className="text-xl font-bold mb-4">Detail Private Trip</h2>
+        <h1 className="text-3xl font-bold text-gray-800">Detail Trip</h1>
 
         <div className="mt-10 flex justify-center">
           <a href={trip.mountain_photo} target="_blank" rel="noopener noreferrer">
