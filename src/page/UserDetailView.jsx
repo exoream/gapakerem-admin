@@ -3,6 +3,8 @@ import axios from 'axios';
 import Cookies from 'js-cookie';
 import { useParams, useNavigate } from 'react-router-dom';
 import Loading from '../components/Loading';
+import { ToastContainer, toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 
 const UserDetailView = () => {
   const { id } = useParams();
@@ -107,6 +109,10 @@ const UserDetailView = () => {
           Kembali
         </button>
       </div>
+
+      <ToastContainer
+        className="absolute top-5 right-5"
+      />
     </div>
   );
 };

@@ -6,6 +6,8 @@ import { faSearch, faEye, faTrash, faFileAlt } from '@fortawesome/free-solid-svg
 import { useNavigate, useLocation, useSearchParams } from 'react-router-dom';
 import Pagination from '../components/Pagination';
 import Loading from '../components/Loading';
+import { ToastContainer, toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 const ITEMS_PER_PAGE = 8;
 
 const TranPrivTrip = () => {
@@ -192,6 +194,10 @@ const TranPrivTrip = () => {
           )}
         </div>
       </div>
+
+      <ToastContainer
+        className="absolute top-5 right-5"
+      />
     </div>
   );
 };

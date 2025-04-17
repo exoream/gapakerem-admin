@@ -2,6 +2,8 @@ import React, { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import axios from "axios";
 import Loading from "../components/Loading";
+import { ToastContainer, toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 
 const ViewPrivateTrip = () => {
   const { id } = useParams();
@@ -69,7 +71,7 @@ const ViewPrivateTrip = () => {
         </div>
 
         <div className="mt-5 grid grid-cols-3 items-center gap-4">
-          <label className="font-medium">Harga</label>
+          <label className="font-medium">Description</label>
           <textarea
             type="text"
             value={trip.description}
@@ -106,6 +108,10 @@ const ViewPrivateTrip = () => {
           Kembali
         </button>
       </div>
+
+      <ToastContainer
+        className="absolute top-5 right-5"
+      />
     </div>
   );
 };

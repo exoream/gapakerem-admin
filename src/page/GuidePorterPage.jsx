@@ -3,6 +3,9 @@ import { FaEdit, FaTrash, FaPlus, FaChevronLeft, FaChevronRight } from 'react-ic
 import axios from 'axios';
 import Cookies from 'js-cookie';
 import Pagination from '../components/Pagination';
+import Loading from '../components/Loading';
+import { ToastContainer, toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 
 const GuidePorter = () => {
   const [guides, setGuides] = useState([]);
@@ -18,7 +21,6 @@ const GuidePorter = () => {
   const itemsPerPage = 5;
   const displayedGuides = guides.slice((currentPageGuide - 1) * itemsPerPage, currentPageGuide * itemsPerPage);
   const displayedPorters = porters.slice((currentPagePorter - 1) * itemsPerPage, currentPagePorter * itemsPerPage);
-
 
   useEffect(() => {
     const fetchData = async () => {
@@ -274,9 +276,7 @@ const GuidePorter = () => {
     }
   };
 
-  if (loading) {
-    return <div>Loading...</div>;
-  }
+  if (loading) return <Loading />;
 
   return (
     <div className="p-10">
@@ -523,6 +523,10 @@ const GuidePorter = () => {
           </div>
         </div>
       )}
+
+      <ToastContainer
+        className="absolute top-5 right-5"
+      />
     </div>
   );
 };

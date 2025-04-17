@@ -4,6 +4,8 @@ import axios from 'axios';
 import Cookies from 'js-cookie';
 import Loading from '../components/Loading';
 import Loading2 from '../components/Loading2';
+import { ToastContainer, toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 
 const DetailPrivateTransaksi = () => {
   const { id } = useParams();
@@ -207,6 +209,10 @@ const DetailPrivateTransaksi = () => {
           )}
         </div>
       </div>
+
+      <ToastContainer
+        className="absolute top-5 right-5"
+      />
     </div>
   );
 };

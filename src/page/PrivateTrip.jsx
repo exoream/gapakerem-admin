@@ -4,6 +4,8 @@ import { useNavigate } from 'react-router-dom';
 import Cookies from 'js-cookie';
 import Pagination from '../components/Pagination';
 import Loading from '../components/Loading';
+import { ToastContainer, toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 
 const PrivateTrip = () => {
   const [trips, setTrips] = useState([]);
@@ -157,6 +159,10 @@ const PrivateTrip = () => {
           </table>
         </div>
       </div>
+
+      <ToastContainer
+        className="absolute top-5 right-5"
+      />
 
       {totalPages > 1 && (
         <Pagination

@@ -5,6 +5,8 @@ import Cookies from 'js-cookie';
 import { useNavigate } from 'react-router-dom';
 import Pagination from '../components/Pagination';
 import Loading from '../components/Loading';
+import { ToastContainer, toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 
 const UserDash = () => {
   const [users, setUsers] = useState([]);
@@ -128,6 +130,10 @@ const UserDash = () => {
           onPageChange={handlePageChange}
         />
       )}
+
+      <ToastContainer
+        className="absolute top-5 right-5"
+      />
     </div>
   );
 };

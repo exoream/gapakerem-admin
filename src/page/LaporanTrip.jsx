@@ -7,6 +7,8 @@ import axios from 'axios';
 import Cookies from 'js-cookie';
 import DownloadReport from './DownloadReport';
 import Loading from '../components/Loading';
+import { ToastContainer, toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 
 const months = [
   { value: '01', label: 'Januari' },
@@ -220,6 +222,10 @@ const LaporanTrip = () => {
           />
         </div>
       </div>
+
+      <ToastContainer
+        className="absolute top-5 right-5"
+      />
     </div>
   );
 };
