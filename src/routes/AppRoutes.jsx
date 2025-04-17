@@ -22,7 +22,6 @@ function AppRoutes() {
     const location = useLocation();
     const isLoginPage = location.pathname === "/";
 
-    // Kalau login, langsung render route-nya tanpa sidebar dan layout
     if (isLoginPage) {
         return (
             <Routes>
@@ -31,11 +30,10 @@ function AppRoutes() {
         );
     }
 
-    // Kalau bukan login, baru render dengan sidebar + layout
     return (
         <>
-            <Sidebar />
             <div className="flex h-screen">
+                <Sidebar />
                 <div className="flex-1 p-4 overflow-y-auto">
                     <Routes>
                         <Route path="/dashboard" element={<Dashboard />} />
@@ -57,6 +55,7 @@ function AppRoutes() {
                     </Routes>
                 </div>
             </div>
+
         </>
     );
 }
