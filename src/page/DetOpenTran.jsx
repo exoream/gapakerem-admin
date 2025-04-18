@@ -2,6 +2,10 @@ import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import Cookies from 'js-cookie';
+import Loading from '../components/Loading';
+import Loading2 from '../components/Loading2';
+import { ToastContainer, toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 
 const DetailOpenTransaksi = () => {
   const { id } = useParams();
@@ -9,28 +13,27 @@ const DetailOpenTransaksi = () => {
 
   const [data, setData] = useState(null);
   const [loading, setLoading] = useState(false);
-  const [error, setError] = useState(null);
   const [updating, setUpdating] = useState(false);
 
   useEffect(() => {
     const fetchDetail = async () => {
       setLoading(true);
-      setError(null);
       try {
         const token = Cookies.get('token');
-        if (!token) throw new Error('Token tidak ditemukan, silakan login.');
 
         const response = await axios.get(`https://gapakerem.vercel.app/bookings/${id}`, {
           headers: { Authorization: `Bearer ${token}` },
         });
 
-        if (response.data.status && response.data.data) {
-          setData(response.data.data);
-        } else {
-          setError('Data tidak ditemukan');
-        }
-      } catch (err) {
-        setError(err.response?.data?.message || err.message || 'Terjadi kesalahan saat mengambil data');
+        setData(response.data.data);
+
+      } catch (error) {
+        console.error("Error Response:", error.response);
+        toast.error(error.response.data.message, {
+          position: "top-center",
+          autoClose: 3000,
+          hideProgressBar: true,
+        });
       } finally {
         setLoading(false);
       }
@@ -40,59 +43,37 @@ const DetailOpenTransaksi = () => {
   }, [id]);
 
   const updateStatus = async (newStatus) => {
-    const currentStatus = data?.status?.toLowerCase();
-    const hasProof = !!data?.payment_proof;
-
-    if (!hasProof || currentStatus !== 'paid') {
-      alert('Status hanya dapat diubah jika sudah ada bukti pembayaran dan status saat ini adalah "paid".');
-      return;
-    }
-
     setUpdating(true);
-    setError(null);
-
     try {
       const token = Cookies.get('token');
-      if (!token) throw new Error('Token tidak ditemukan, silakan login.');
 
       const response = await axios.patch(
         `https://gapakerem.vercel.app/bookings/${id}/status`,
-        { status: newStatus }, 
+        { status: newStatus },
         {
           headers: { Authorization: `Bearer ${token}` },
         }
       );
-      
 
-      if (response.data.status) {
-        setData((prev) => ({
-          ...prev,
-          payment_status: newStatus,
-        }));
-        alert(`Status berhasil diubah menjadi ${newStatus === 'approved' ? 'Diterima' : 'Ditolak'}`);
-      } else {
-        alert('Gagal mengubah status');
-      }
-    } catch (err) {
-      alert(err.response?.data?.message || err.message || 'Terjadi kesalahan saat mengubah status');
+      setData((prev) => ({
+        ...prev,
+        payment_status: newStatus,
+      }));
+      alert(`Status berhasil diubah menjadi ${newStatus === 'approved' ? 'Diterima' : 'Ditolak'}`);
+
+    } catch (error) {
+      console.error("Error Response:", error.response);
+      toast.error(error.response.data.message, {
+        position: "top-center",
+        autoClose: 3000,
+        hideProgressBar: true,
+      });
     } finally {
       setUpdating(false);
     }
   };
 
-  if (loading) return <div className="p-8 text-center">Loading detail transaksi...</div>;
-
-  if (error)
-    return (
-      <div className="p-8 text-center text-red-600">
-        <p>{error}</p>
-        <button onClick={() => navigate(-1)} className="mt-4 bg-yellow-500 text-white px-4 py-2 rounded">
-          Kembali
-        </button>
-      </div>
-    );
-
-  if (!data) return null;
+  if (loading || !data) return <Loading />;
 
   const {
     participant_name,
@@ -101,108 +82,136 @@ const DetailOpenTransaksi = () => {
     total_price,
     meeting_point,
     payment_proof,
-    status, // Ganti payment_status menjadi status
+    status,
     created_at,
   } = data;
-  
 
   const formatCurrency = (num) => (num ? 'Rp ' + num.toString().replace(/\B(?=(\d{3})+(?!\d))/g, '.') : '-');
   const formatDate = (dateString) => (dateString ? new Date(dateString).toLocaleDateString('id-ID') : '-');
 
   const isActionAllowed =
-  !!payment_proof && String(status).toLowerCase().trim() === 'paid';
-
+    !!payment_proof && String(status).toLowerCase().trim() === 'paid';
 
   console.log('DEBUG payment_status:', status);
   console.log('DEBUG payment_proof:', payment_proof);
   console.log('DEBUG isActionAllowed:', isActionAllowed);
 
   return (
-    <div className="flex">
-      <div className="w-4/5 p-8">
-        <h1 className="text-2xl font-bold mb-8">Detail Transaksi</h1>
-        <div className="space-y-4 max-w-xl">
-          <div className="flex items-center">
-            <span className="w-1/4 font-semibold">Peserta</span>
-            <input className="w-3/4 p-2 border rounded-full" readOnly type="text" value={participant_name || '-'} />
-          </div>
-          <div className="flex items-center">
-            <span className="w-1/4 font-semibold">No Hp</span>
-            <input className="w-3/4 p-2 border rounded-full" readOnly type="text" value={phone_number || '-'} />
-          </div>
-          <div className="flex items-center">
-            <span className="w-1/4 font-semibold">Nama Gunung</span>
-            <input className="w-3/4 p-2 border rounded-full" readOnly type="text" value={mountain_name || '-'} />
-          </div>
-          <div className="flex items-center">
-            <span className="w-1/4 font-semibold">Harga</span>
-            <input className="w-3/4 p-2 border rounded-full" readOnly type="text" value={formatCurrency(total_price)} />
-          </div>
-          <div className="flex items-center">
-            <span className="w-1/4 font-semibold">Meeting Point</span>
-            <input className="w-3/4 p-2 border rounded-full" readOnly type="text" value={meeting_point || '-'} />
-          </div>
-          <div className="flex items-center">
-            <span className="w-1/4 font-semibold">Bukti Pembayaran</span>
-            <div className="w-3/4">
-              {payment_proof ? (
-                <img src={payment_proof} alt="Bukti Pembayaran" className="border rounded" width="100" height="100" />
-              ) : (
-                <span className="text-red-500">Belum Ada</span>
-              )}
-            </div>
-          </div>
+    <div className="p-10 flex items-center justify-center">
+      <div className="w-2/3 rounded-xl shadow-lg p-10">
+        <h1 className="text-3xl font-bold text-gray-800">Detail Transaksi</h1>
+
+        <div className="mt-10 grid grid-cols-3 items-center gap-4">
+          <label className="font-medium">Nama Partisipan</label>
+          <input
+            type="text"
+            value={participant_name}
+            readOnly
+            className="col-span-2 border border-gray-300 text-gray-900 text-sm rounded-full focus:outline-none focus:ring-2 focus:ring-[#FFC100] focus:border-transparent w-full p-3"
+          />
         </div>
-        <div className="mt-8 flex justify-between items-center max-w-xl">
+
+        <div className="mt-5 grid grid-cols-3 items-center gap-4">
+          <label className="font-medium">No. HP</label>
+          <input
+            type="text"
+            value={phone_number}
+            readOnly
+            className="col-span-2 border border-gray-300 text-gray-900 text-sm rounded-full focus:outline-none focus:ring-2 focus:ring-[#FFC100] focus:border-transparent w-full p-3"
+          />
+        </div>
+
+        <div className="mt-5 grid grid-cols-3 items-center gap-4">
+          <label className="font-medium">Nama Gunung</label>
+          <input
+            type="text"
+            value={mountain_name}
+            readOnly
+            className="col-span-2 border border-gray-300 text-gray-900 text-sm rounded-full focus:outline-none focus:ring-2 focus:ring-[#FFC100] focus:border-transparent w-full p-3"
+          />
+        </div>
+
+        <div className="mt-5 grid grid-cols-3 items-center gap-4">
+          <label className="font-medium">Harga</label>
+          <input
+            type="text"
+            value={formatCurrency(total_price)}
+            readOnly
+            className="col-span-2 border border-gray-300 text-gray-900 text-sm rounded-full focus:outline-none focus:ring-2 focus:ring-[#FFC100] focus:border-transparent w-full p-3"
+          />
+        </div>
+
+        <div className="mt-5 grid grid-cols-3 items-center gap-4">
+          <label className="font-medium">Meeting Point</label>
+          <input
+            type="text"
+            value={meeting_point}
+            readOnly
+            className="col-span-2 border border-gray-300 text-gray-900 text-sm rounded-full focus:outline-none focus:ring-2 focus:ring-[#FFC100] focus:border-transparent w-full p-3"
+          />
+        </div>
+
+        <div className="mt-5 grid grid-cols-3 items-center gap-4">
+          <label className="font-medium">Bukti Pembayaran</label>
+          {payment_proof ? (
+            <a href={payment_proof} target="_blank" rel="noopener noreferrer" className='col-span-2'>
+              <img
+                src={payment_proof}
+                alt="Bukti Pembayaran"
+                className="w-64 rounded-lg hover:opacity-80 transition"
+              />
+            </a>
+          ) : (
+            <span className="px-3 py-1 rounded-full text-sm font-semibold bg-red-100 text-red-700">Belum Ada</span>
+          )}
+        </div>
+
+        <div className="mt-5 grid grid-cols-3 items-center gap-4">
+          <label className="font-medium">Status</label>
+          <span
+            className={`px-3 py-1 rounded-full text-sm font-semibold 
+              ${status === 'paid' ? 'bg-green-100 text-green-700' :
+                status === 'unpaid' ? 'bg-yellow-100 text-yellow-700' :
+                  status === 'rejected' ? 'bg-red-100 text-red-700' :
+                    status === 'approved' ? 'bg-blue-100 text-blue-700' :
+                      'bg-gray-100 text-gray-700'}`}
+          >
+            {status}
+          </span>
+        </div>
+
+        <div className="mt-10 flex items-center justify-between">
+          <button onClick={() => navigate(-1)} className="bg-[#FFC100] mt-5 text-white px-4 py-2 text-sm rounded-full font-semibold hover:bg-yellow-400 transition-all duration-200">
+            Kembali
+          </button>
+
           <span className="text-gray-500">{formatDate(created_at)}</span>
-          <div className="flex items-center space-x-4">
-            <span className="font-semibold">Status</span>
-            <span
-              className={`font-semibold ${
-                status === 'approved'
-                  ? 'text-green-600'
-                  : status === 'rejected'
-                  ? 'text-red-600'
-                  : 'text-yellow-600'
-              }`}
-            >
-              {status === 'approved'
-                ? 'Diterima'
-                : status === 'rejected'
-                ? 'Ditolak'
-                : 'Menunggu Aksi'}
-            </span>
 
-            <button
-              onClick={() => updateStatus('approved')}
-              disabled={!payment_proof || status !== 'paid' || updating}
-              className={`px-4 py-2 rounded text-white transition ${
-                payment_proof && status === 'paid' && !updating
-                  ? 'bg-green-500 hover:bg-green-600'
-                  : 'bg-gray-400 cursor-not-allowed'
-              }`}
-            >
-              {updating && status !== 'approved' ? 'Memproses...' : 'Terima'}
-            </button>
+          {updating ? (
+            <Loading2 />
+          ) : status === 'paid' && (
+            <div>
+              <button
+                onClick={() => updateStatus('approved')}
+                className="bg-green-500 mt-5 text-white px-4 py-2 text-sm rounded-full font-semibold hover:bg-green-600 transition-all duration-200"
+              >
+                Terima
+              </button>
 
-            <button
-              onClick={() => updateStatus('rejected')}
-              disabled={!payment_proof || status !== 'paid' || updating}
-              className={`px-4 py-2 rounded text-white transition ${
-                payment_proof && status === 'paid' && !updating
-                  ? 'bg-red-500 hover:bg-red-600'
-                  : 'bg-gray-400 cursor-not-allowed'
-              }`}
-            >
-              {updating && status !== 'rejected' ? 'Memproses...' : 'Tolak'}
-            </button>
-
-          </div>
+              <button
+                onClick={() => updateStatus('rejected')}
+                className="bg-red-500 ml-5 mt-5 text-white px-4 py-2 text-sm rounded-full font-semibold hover:bg-red-600 transition-all duration-200"
+              >
+                Tolak
+              </button>
+            </div>
+          )}
         </div>
-        <button onClick={() => navigate(-1)} className="mt-4 bg-yellow-500 text-white px-4 py-2 rounded">
-          Kembali
-        </button>
       </div>
+
+      <ToastContainer
+        className="absolute top-5 right-5"
+      />
     </div>
   );
 };

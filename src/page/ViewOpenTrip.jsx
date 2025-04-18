@@ -1,6 +1,8 @@
 import React, { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import axios from "axios";
+import { ToastContainer, toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 
 const ViewOpenTrip = () => {
   const { id } = useParams();
@@ -9,13 +11,19 @@ const ViewOpenTrip = () => {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
+    setLoading(true);
+
     const fetchTrip = async () => {
       try {
         const res = await axios.get(`https://gapakerem.vercel.app/trips/${id}`);
         setTrip(res.data.data);
       } catch (err) {
-        console.error("Gagal ambil detail trip:", err);
-        alert("Gagal mengambil data trip");
+        console.error("Error Response:", error.response);
+        toast.error(error.response.data.message, {
+          position: "top-center",
+          autoClose: 3000,
+          hideProgressBar: true,
+        });
       } finally {
         setLoading(false);
       }
@@ -24,82 +32,96 @@ const ViewOpenTrip = () => {
     fetchTrip();
   }, [id]);
 
-  if (loading) return <div className="text-center mt-4 text-gray-600">Loading...</div>;
-  if (!trip || trip.trip_type !== "open") {
-    return <div className="text-center mt-4 text-red-500">Trip tidak ditemukan atau bukan trip tipe open</div>;
-  }
+  if (loading) return <Loading />;
 
   return (
-    <div className="max-w-2xl mx-auto bg-white p-6 rounded shadow-md">
-      <h2 className="text-xl font-bold mb-4">Detail Open Trip</h2>
+    <div className="p-10 flex items-center justify-center">
+      <div className="w-2/3 rounded-xl shadow-lg p-10">
+        <h1 className="text-3xl font-bold text-gray-800">Detail Trip</h1>
 
-      {trip.mountain_photo && (
-        <img
-          src={trip.mountain_photo}
-          alt="Foto Gunung"
-          className="w-full h-64 object-cover mb-4 rounded"
-        />
-      )}
-
-      <div className="space-y-4">
-        <div>
-          <label className="block text-sm font-semibold text-gray-700">Nama Gunung</label>
-          <p className="border p-2 rounded bg-gray-50">{trip.mountain_name}</p>
+        <div className="mt-10 flex justify-center">
+          <a href={trip.mountain_photo} target="_blank" rel="noopener noreferrer">
+            <img
+              src={trip.mountain_photo}
+              alt={trip.mountain_name}
+              className="w-64 rounded-lg hover:opacity-80 transition"
+            />
+          </a>
         </div>
 
-        <div>
-          <label className="block text-sm font-semibold text-gray-700">Harga</label>
-          <p className="border p-2 rounded bg-gray-50">Rp {Number(trip.price).toLocaleString()}</p>
+        <div className="mt-10 grid grid-cols-3 items-center gap-4">
+          <label className="font-medium">Nama Gunung</label>
+          <input
+            type="text"
+            value={trip.mountain_name}
+            readOnly
+            className="col-span-2 border border-gray-300 text-gray-900 text-sm rounded-full focus:outline-none focus:ring-2 focus:ring-[#FFC100] focus:border-transparent w-full p-3"
+          />
         </div>
 
-        <div>
-          <label className="block text-sm font-semibold text-gray-700">Deskripsi</label>
-          <p className="border p-2 rounded bg-gray-50 whitespace-pre-line">{trip.description}</p>
+        <div className="mt-5 grid grid-cols-3 items-center gap-4">
+          <label className="font-medium">Harga</label>
+          <input
+            type="text"
+            value={Number(trip.price).toLocaleString()}
+            readOnly
+            className="col-span-2 border border-gray-300 text-gray-900 text-sm rounded-full focus:outline-none focus:ring-2 focus:ring-[#FFC100] focus:border-transparent w-full p-3"
+          />
         </div>
 
-        <div>
-          <label className="block text-sm font-semibold text-gray-700">Peralatan</label>
-          <p className="border p-2 rounded bg-gray-50 whitespace-pre-line">{trip.equipment}</p>
+        <div className="mt-5 grid grid-cols-3 items-center gap-4">
+          <label className="font-medium">Description</label>
+          <textarea
+            type="text"
+            value={trip.description}
+            readOnly
+            rows={4}
+            className="col-span-2 border border-gray-300 text-gray-900 text-sm rounded-2xl focus:outline-none focus:ring-2 focus:ring-[#FFC100] focus:border-transparent w-full p-3"
+          />
         </div>
 
-        <div>
-          <label className="block text-sm font-semibold text-gray-700">Estimasi Waktu</label>
-          <p className="border p-2 rounded bg-gray-50">{trip.estimation_time}</p>
+        <div className="mt-5 grid grid-cols-3 items-center gap-4">
+          <label className="font-medium">Peralatan</label>
+          <input
+            type="text"
+            value={trip.equipment}
+            readOnly
+            className="col-span-2 border border-gray-300 text-gray-900 text-sm rounded-full focus:outline-none focus:ring-2 focus:ring-[#FFC100] focus:border-transparent w-full p-3"
+          />
         </div>
 
-        <div>
-          <label className="block text-sm font-semibold text-gray-700">Jam Keberangkatan</label>
-          <p className="border p-2 rounded bg-gray-50">{trip.traveling_time}:00</p>
+        <div className="mt-5 grid grid-cols-3 items-center gap-4">
+          <label className="font-medium">Estimasi Waktu</label>
+          <input
+            type="text"
+            value={trip.estimation_time}
+            readOnly
+            className="col-span-2 border border-gray-300 text-gray-900 text-sm rounded-full focus:outline-none focus:ring-2 focus:ring-[#FFC100] focus:border-transparent w-full p-3"
+          />
         </div>
 
-        <div>
-          <label className="block text-sm font-semibold text-gray-700">Agenda</label>
-          <p className="border p-2 rounded bg-gray-50 whitespace-pre-line">{trip.agenda}</p>
+        <div className="mt-5 grid grid-cols-3 items-center gap-4">
+          <label className="font-medium">Agenda</label>
+          <textarea
+            type="text"
+            value={trip.agenda}
+            readOnly
+            rows={4}
+            className="col-span-2 border border-gray-300 text-gray-900 text-sm rounded-2xl focus:outline-none focus:ring-2 focus:ring-[#FFC100] focus:border-transparent w-full p-3"
+          />
         </div>
 
-        <div>
-          <label className="block text-sm font-semibold text-gray-700">Guide</label>
-          <p className="border p-2 rounded bg-gray-50">{trip.guide?.name || "Tidak ada"}</p>
-        </div>
-
-        <div>
-          <label className="block text-sm font-semibold text-gray-700">Porter</label>
-          <p className="border p-2 rounded bg-gray-50">
-            {trip.porters?.length > 0
-              ? trip.porters.map((p) => p.name).join(", ")
-              : "Tidak ada"}
-          </p>
-        </div>
-      </div>
-
-      <div className="flex justify-end mt-6">
         <button
-          className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700"
-          onClick={() => navigate("/opentrip")}
+          className="bg-[#FFC100] mt-5 text-white px-4 py-2 text-sm rounded-full font-semibold hover:bg-yellow-400 transition-all duration-200"
+          onClick={() => navigate("/privtrip")}
         >
           Kembali
         </button>
       </div>
+
+      <ToastContainer
+        className="absolute top-5 right-5"
+      />
     </div>
   );
 };

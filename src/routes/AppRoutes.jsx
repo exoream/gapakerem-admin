@@ -1,4 +1,4 @@
-import { BrowserRouter as Router, Route, Routes } from "react-router-dom";
+import { Routes, Route, useLocation } from "react-router-dom";
 import Sidebar from "../components/Sidebar";
 import Dashboard from "../page/Dashboard";
 import UserDash from "../page/userDash";
@@ -18,14 +18,24 @@ import UserDetailView from "../page/UserDetailView";
 import ViewOpenTrip from "../page/ViewOpenTrip";
 import ViewPrivateTrip from "../page/ViewPrivateTrip";
 
-const AppRoutes = () => {
+function AppRoutes() {
+    const location = useLocation();
+    const isLoginPage = location.pathname === "/";
+
+    if (isLoginPage) {
+        return (
+            <Routes>
+                <Route path="/" element={<Login />} />
+            </Routes>
+        );
+    }
+
     return (
-        <Router>
-            <div className="flex h-screen"> 
+        <>
+            <div className="flex h-screen">
                 <Sidebar />
-                <div className="flex-1 p-4 overflow-y-auto"> {/* Main content area */}
+                <div className="flex-1 overflow-y-auto">
                     <Routes>
-                        <Route path="/" element={<Login />} /> {/* Halaman login */}
                         <Route path="/dashboard" element={<Dashboard />} />
                         <Route path="/user" element={<UserDash />} />
                         <Route path="/opentrip" element={<OpenTrip />} />
@@ -45,7 +55,8 @@ const AppRoutes = () => {
                     </Routes>
                 </div>
             </div>
-        </Router>
+
+        </>
     );
 }
 

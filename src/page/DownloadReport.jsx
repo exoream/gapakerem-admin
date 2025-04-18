@@ -20,110 +20,136 @@ const getMonthName = (value) => {
 const DownloadReport = ({ month, year, openTrip, privateTrip, totalOpen, totalPrivate }) => {
   const totalKeseluruhan = totalOpen + totalPrivate;
   const totalTrip = openTrip.length + privateTrip.length;
-  
+
   const currentDate = new Date();
   const tanggal = `${currentDate.getDate()} ${getMonthName(
     (currentDate.getMonth() + 1).toString().padStart(2, '0')
   )} ${currentDate.getFullYear()}`;
 
   return (
-    <div className="max-w-[794px] mx-auto p-10 bg-white text-[#000] font-sans text-sm">
-      
-      {/* Decorative Header */}
-      <div className="relative mb-6">
-        <div className="absolute top-0 left-0 w-full h-10 bg-gradient-to-r from-orange-500 via-yellow-400 to-white z-0" />
-        <div className="relative z-10 flex justify-between items-start pt-10 pb-4 border-b-4 border-gray-300">
+    <div className="max-w-4xl mx-auto p-8 bg-white text-gray-800 font-sans shadow-lg">
+
+      <div className="relative mb-8">
+        <div className="absolute top-0 left-0 w-full h-3 bg-gradient-to-r from-orange-600 via-yellow-500 to-orange-300" />
+        <div className="pt-8 pb-4 flex justify-between items-center border-b-2 border-gray-200">
           <div>
-            <h1 className="text-2xl font-bold">Laporan Trip</h1>
-            <p className="text-gray-500 mt-1">{getMonthName(month)}, {year}</p>
+            <h1 className="text-3xl font-bold text-gray-800">Laporan Trip</h1>
+            <p className="text-gray-600 text-lg mt-1">{getMonthName(month)} {year}</p>
           </div>
-          <div className="text-right flex items-center gap-2">
-            <div>
-              <p className="font-extrabold text-lg leading-tight">GaPakeRem</p>
-              <p className="font-extrabold text-lg leading-tight">Adventure</p>
+          <div className="flex items-center gap-3">
+            <div className="text-right">
+              <p className="font-extrabold text-xl leading-tight text-orange-600">GaPakeRem</p>
+              <p className="font-bold text-lg leading-tight text-gray-700">Adventure</p>
             </div>
             <img
               src={logo}
               alt="Logo"
-              className="w-16 h-16 rounded-full border-2 border-yellow-500"
+              className="w-16 h-16 rounded-full border-2 border-yellow-500 shadow-md"
             />
           </div>
         </div>
       </div>
 
-      {/* Open Trip */}
+      <div className="bg-gray-50 p-4 rounded-lg mb-8 flex justify-between items-center">
+        <div className="text-center">
+          <p className="text-sm text-gray-500">Total Trip</p>
+          <p className="font-bold text-2xl text-gray-800">{totalTrip}</p>
+        </div>
+        <div className="text-center">
+          <p className="text-sm text-gray-500">Open Trip</p>
+          <p className="font-bold text-2xl text-gray-800">{openTrip.length}</p>
+        </div>
+        <div className="text-center">
+          <p className="text-sm text-gray-500">Private Trip</p>
+          <p className="font-bold text-2xl text-gray-800">{privateTrip.length}</p>
+        </div>
+        <div className="text-center">
+          <p className="text-sm text-gray-500">Total Pendapatan</p>
+          <p className="font-bold text-2xl text-orange-600">{formatCurrency(totalKeseluruhan)}</p>
+        </div>
+      </div>
+
       <div className="mb-8">
-        <div className="flex items-center gap-4 mb-2">
-          <h2 className="font-semibold text-base">Open Trip</h2>
-          <span className="border border-gray-400 rounded-full px-3 py-1 text-sm">
-            {openTrip.length}
+        <div className="flex items-center gap-4 mb-3">
+          <h2 className="font-bold text-lg text-gray-800">Open Trip</h2>
+          <span className="bg-orange-100 text-orange-800 border border-orange-300 rounded-full px-3 py-1 text-sm font-medium">
+            {openTrip.length} Trip
           </span>
         </div>
-        <table className="w-full text-left mb-2">
-          <thead className="border-y border-gray-300">
-            <tr>
-              <th className="py-2">Nama Gunung</th>
-              <th className="py-2">Jumlah Peserta</th>
-              <th className="py-2">Jumlah Transaksi</th>
-            </tr>
-          </thead>
-          <tbody>
-            {openTrip.map((trip, idx) => (
-              <tr key={idx}>
-                <td className="py-2">{trip.mountain_name}</td>
-                <td className="py-2">{trip.total_participants}</td>
-                <td className="py-2">{formatCurrency(trip.total_price)}</td>
+        <div className="overflow-hidden rounded-lg border border-gray-200">
+          <table className="w-full text-left">
+            <thead className="bg-gray-50">
+              <tr>
+                <th className="px-4 py-3 text-gray-600 font-semibold">Nama Gunung</th>
+                <th className="px-4 py-3 text-gray-600 font-semibold text-center">Jumlah Peserta</th>
+                <th className="px-4 py-3 text-gray-600 font-semibold text-right">Jumlah Transaksi</th>
               </tr>
-            ))}
-          </tbody>
-        </table>
-        <div className="text-right font-medium">Total Open Trip: {formatCurrency(totalOpen)}</div>
+            </thead>
+            <tbody className="divide-y divide-gray-200">
+              {openTrip.map((trip, idx) => (
+                <tr key={idx} className={idx % 2 === 0 ? "bg-white" : "bg-gray-50"}>
+                  <td className="px-4 py-3">{trip.mountain_name}</td>
+                  <td className="px-4 py-3 text-center">{trip.total_participants}</td>
+                  <td className="px-4 py-3 text-right font-medium">{formatCurrency(trip.total_price)}</td>
+                </tr>
+              ))}
+            </tbody>
+            <tfoot className="bg-orange-50">
+              <tr>
+                <td colSpan="2" className="px-4 py-3 font-semibold text-right">Total Open Trip</td>
+                <td className="px-4 py-3 font-bold text-right text-orange-700">{formatCurrency(totalOpen)}</td>
+              </tr>
+            </tfoot>
+          </table>
+        </div>
       </div>
 
-      {/* Private Trip */}
       <div className="mb-8">
-        <div className="flex items-center gap-4 mb-2">
-          <h2 className="font-semibold text-base">Private Trip</h2>
-          <span className="border border-gray-400 rounded-full px-3 py-1 text-sm">
-            {privateTrip.length}
+        <div className="flex items-center gap-4 mb-3">
+          <h2 className="font-bold text-lg text-gray-800">Private Trip</h2>
+          <span className="bg-blue-100 text-blue-800 border border-blue-300 rounded-full px-3 py-1 text-sm font-medium">
+            {privateTrip.length} Trip
           </span>
         </div>
-        <table className="w-full text-left mb-2">
-          <thead className="border-y border-gray-300">
-            <tr>
-              <th className="py-2">Nama Gunung</th>
-              <th className="py-2">Jumlah Peserta</th>
-              <th className="py-2">Jumlah Transaksi</th>
-            </tr>
-          </thead>
-          <tbody>
-            {privateTrip.map((trip, idx) => (
-              <tr key={idx}>
-                <td className="py-2">{trip.mountain_name}</td>
-                <td className="py-2">{trip.total_participants}</td>
-                <td className="py-2">{formatCurrency(trip.total_price)}</td>
+        <div className="overflow-hidden rounded-lg border border-gray-200">
+          <table className="w-full text-left">
+            <thead className="bg-gray-50">
+              <tr>
+                <th className="px-4 py-3 text-gray-600 font-semibold">Nama Gunung</th>
+                <th className="px-4 py-3 text-gray-600 font-semibold text-center">Jumlah Peserta</th>
+                <th className="px-4 py-3 text-gray-600 font-semibold text-right">Jumlah Transaksi</th>
               </tr>
-            ))}
-          </tbody>
-        </table>
-        <div className="text-right font-medium">Total Private Trip: {formatCurrency(totalPrivate)}</div>
+            </thead>
+            <tbody className="divide-y divide-gray-200">
+              {privateTrip.map((trip, idx) => (
+                <tr key={idx} className={idx % 2 === 0 ? "bg-white" : "bg-gray-50"}>
+                  <td className="px-4 py-3">{trip.mountain_name}</td>
+                  <td className="px-4 py-3 text-center">{trip.total_participants}</td>
+                  <td className="px-4 py-3 text-right font-medium">{formatCurrency(trip.total_price)}</td>
+                </tr>
+              ))}
+            </tbody>
+            <tfoot className="bg-blue-50">
+              <tr>
+                <td colSpan="2" className="px-4 py-3 font-semibold text-right">Total Private Trip</td>
+                <td className="px-4 py-3 font-bold text-right text-blue-700">{formatCurrency(totalPrivate)}</td>
+              </tr>
+            </tfoot>
+          </table>
+        </div>
       </div>
 
-      {/* Total Summary */}
-      <div className="border-t border-b py-4 flex justify-between items-center">
-        <div>Total Keseluruhan Trip</div>
-        <div className="font-semibold">{totalTrip} Trip</div>
-      </div>
-      <div className="border-b py-2 flex justify-between items-center">
-        <div>Total Pendapatan</div>
-        <div className="font-bold text-lg">{formatCurrency(totalKeseluruhan)}</div>
+      <div className="mt-8 mb-6 bg-gray-800 text-white rounded-lg p-4 flex justify-between items-center">
+        <div className="font-medium text-lg">Total Keseluruhan Pendapatan</div>
+        <div className="font-bold text-2xl">{formatCurrency(totalKeseluruhan)}</div>
       </div>
 
-      {/* Footer */}
-      <div className="mt-10 text-sm text-right">
-        <p>Makassar, {tanggal}</p>
-        <div className="mt-6 mb-2 border-t border-black w-1/3 ml-auto" />
-        <p>GaPakeRem Adventure</p>
+      <div className="mt-12 flex justify-end">
+        <div className="text-right w-64">
+          <p className="text-gray-600">Makassar, {tanggal}</p>
+          <div className="mt-12 mb-2 border-b border-gray-400 w-full" />
+          <p className="font-bold text-gray-800">GaPakeRem Adventure</p>
+        </div>
       </div>
     </div>
   );
