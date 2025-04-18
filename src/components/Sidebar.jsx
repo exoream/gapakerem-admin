@@ -28,14 +28,18 @@ const Sidebar = () => {
   };
 
   const handleLogout = () => {
-    localStorage.removeItem('token');
-    navigate('/');
+
+    const confirmDelete = window.confirm("Apakah Anda yakin ingin logout?");
+    if (confirmDelete) {
+      localStorage.removeItem('token');
+      navigate('/')
+    }
   };
 
   return (
     <div className="w-1/5 bg-gray-200 h-full p-4 overflow-y-auto">
       <div className="flex items-center justify-center mb-8">
-        <img src={logo} alt="Logo" className="rounded-full" width="100" height="100" onClick={handleLogoClick} />
+        <img src={logo} alt="Logo" className="rounded-full transform transition duration-300 hover:scale-110" width="100" height="100" onClick={handleLogoClick} />
       </div>
       <nav>
         <ul className="font-medium">

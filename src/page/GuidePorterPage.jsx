@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { FaEdit, FaTrash, FaPlus, FaChevronLeft, FaChevronRight } from 'react-icons/fa';
+import { FaEdit, FaTrash, FaPlus } from 'react-icons/fa';
 import axios from 'axios';
 import Cookies from 'js-cookie';
 import Pagination from '../components/Pagination';
@@ -378,9 +378,9 @@ const GuidePorter = () => {
         </div>
 
         <Pagination
-          currentPage={currentPagePorter}
-          totalPages={Math.ceil(porters.length / itemsPerPage)}
-          onPageChange={(page) => setCurrentPagePorter(page)}
+          currentPage={currentPageGuide}
+          totalPages={Math.ceil(guides.length / itemsPerPage)}
+          onPageChange={(page) => setCurrentPageGuide(page)}
         />
 
       </div>
