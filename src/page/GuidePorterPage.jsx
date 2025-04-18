@@ -378,11 +378,11 @@ const GuidePorter = () => {
         </div>
 
         <Pagination
-          currentPage={currentPageGuide}
-          totalItems={guides.length}
-          itemsPerPage={itemsPerPage}
-          onPageChange={(page) => setCurrentPageGuide(page)}
+          currentPage={currentPagePorter}
+          totalPages={Math.ceil(porters.length / itemsPerPage)}
+          onPageChange={(page) => setCurrentPagePorter(page)}
         />
+
       </div>
 
       <div className="rounded-xl shadow-lg p-10 mt-10">
@@ -447,10 +447,10 @@ const GuidePorter = () => {
 
         <Pagination
           currentPage={currentPagePorter}
-          totalItems={porters.length}
-          itemsPerPage={itemsPerPage}
+          totalPages={Math.ceil(porters.length / itemsPerPage)}
           onPageChange={(page) => setCurrentPagePorter(page)}
         />
+
       </div>
 
       {showEditPopup && (

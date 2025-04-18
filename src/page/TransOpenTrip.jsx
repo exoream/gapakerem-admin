@@ -79,11 +79,6 @@ const TranOpenTrip = () => {
     );
   };
 
-  const handleDeleteData = (id) => {
-    const updatedData = openTripData.filter((item) => item.id !== id);
-    setOpenTripData(updatedData);
-  };
-
   const handleViewData = (id) => {
     navigate(`/booking/open/${id}`);
   };
@@ -168,15 +163,6 @@ const TranOpenTrip = () => {
                           >
                             <FontAwesomeIcon icon={faEye} />
                           </button>
-
-                          <button
-                            onClick={() => handleDeleteData(item.id)}
-                            className="bg-red-500 hover:bg-red-600 text-white p-2 aspect-square rounded-full transition-all transform hover:scale-110 flex items-center justify-center"
-                            aria-label={`Delete booking ${item.participant_name}`}
-                          >
-                            <FontAwesomeIcon icon={faTrash} />
-                          </button>
-
                         </div>
                       </td>
                     </tr>
