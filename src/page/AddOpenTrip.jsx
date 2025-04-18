@@ -212,7 +212,7 @@ const AddOpenTrip = () => {
           </div>
 
           <div className="mt-10 grid grid-cols-3 items-center gap-4">
-            <label className="font-medium">Harga</label>
+            <label className="font-medium">Waktu Travel</label>
             <input
               type="time"
               name="traveling_time"
@@ -235,7 +235,7 @@ const AddOpenTrip = () => {
           </div>
 
           <div className="mt-10 grid grid-cols-3 items-center gap-4">
-            <label className="font-medium">Agenda</label>
+            <label className="font-medium">Guide</label>
             <select
               name="id_guide"
               className="col-span-2 border border-gray-300 text-gray-900 text-sm rounded-xl focus:outline-none focus:ring-2 focus:ring-[#FFC100] focus:border-transparent w-full p-3"
