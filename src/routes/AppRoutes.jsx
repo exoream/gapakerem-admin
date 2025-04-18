@@ -34,7 +34,7 @@ function AppRoutes() {
         <>
             <div className="flex h-screen">
                 <Sidebar />
-                <div className="flex-1 p-4 overflow-y-auto">
+                <div className="flex-1 overflow-y-auto">
                     <Routes>
                         <Route path="/dashboard" element={<Dashboard />} />
                         <Route path="/user" element={<UserDash />} />

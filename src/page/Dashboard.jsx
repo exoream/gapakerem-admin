@@ -1,101 +1,245 @@
 import React, { useEffect, useState } from 'react';
-import axios from 'axios'; // Impor axios
+import axios from 'axios';
 import Cookies from 'js-cookie';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import {
+  faMapMarked,
+  faUsers,
+  faExchangeAlt,
+  faMoneyBillWave,
+  faReceipt,
+  faUserFriends,
+  faCreditCard,
+  faCheckCircle,
+  faTimesCircle
+} from '@fortawesome/free-solid-svg-icons';
+import Loading from '../components/Loading';
 
 const Dashboard = () => {
   const [data, setData] = useState(null);
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState('');
 
   useEffect(() => {
     const fetchData = async () => {
-      setLoading(true); // Set loading ke true saat memulai fetch
+      setLoading(true);
       try {
-        const token = Cookies.get('token'); // Ambil token dari cookies
-        if (!token) {
-          throw new Error('Token not found');
-        }
+        const token = Cookies.get('token');
 
         const response = await axios.get('https://gapakerem.vercel.app/dashboard', {
           headers: {
-            'Authorization': `Bearer ${token}`, // Kirim token dalam header
+            'Authorization': `Bearer ${token}`,
           },
         });
 
-        setData(response.data.data); // Ambil data dari respons
-      } catch (err) {
-        setError(err.response?.data?.message || err.message); // Tampilkan pesan error
+        setData(response.data.data);
+      } catch (error) {
+        console.error("Error Response:", error.response);
+        toast.error(error.response.data.message, {
+          position: "top-center",
+          autoClose: 3000,
+          hideProgressBar: true,
+        });
       } finally {
-        setLoading(false); // Set loading ke false setelah permintaan selesai
+        setLoading(false);
       }
     };
 
     fetchData();
   }, []);
 
-  if (loading) {
-    return <div>Loading...</div>;
-  }
-
-  if (error) {
-    return <div>Error: {error}</div>;
-  }
+  if (loading) return <Loading />;
 
   return (
-    <div className="flex">
-      {/* Main Content */}
-      <div className="w-full p-8">
-        <div className="flex items-center justify-between mb-8">
-          <h1 className="text-2xl font-semibold">
-            Welcome, <span className="text-yellow-500">Admin</span>
-          </h1>
-          <div className="w-1/3 h-4 rounded-lg bg-yellow-500"></div>
+    <div className="bg-gray-100 p-5">
+      {/* Header */}
+      <div className="bg-white mb-10">
+        <div className="max-w-7xl mx-auto px-4 py-6">
+          <div className="flex items-center justify-between">
+            <h1 className="text-3xl font-bold text-gray-800">
+              Welcome, <span className="text-yellow-500">Admin</span>
+            </h1>
+            <div className="w-1/3 h-2 rounded-lg bg-yellow-500"></div>
+          </div>
         </div>
-        <div className="space-y-8">
-          {/* Jumlah Peserta */}
-          <div className="bg-white p-6 rounded-lg shadow">
-            <h2 className="text-lg font-semibold mb-4">Jumlah Peserta</h2>
-            <div className="grid grid-cols-2 gap-4">
-              <div className="bg-gray-300 p-4 rounded-lg flex items-center justify-between">
-                <div>
-                  <span className="bg-yellow-500 text-white px-2 py-1 rounded">Open Trip</span>
-                  <div className="text-4xl font-bold text-yellow-500 mt-2">{data.total_open_trip_participants}</div>
-                  <div className="text-gray-700">Peserta</div>
+      </div>
+
+      {/* Main Content */}
+      <div>
+        {/* Summary Cards */}
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+          {/* Open Trips */}
+          <div className="bg-white rounded-lg shadow-md overflow-hidden group hover:shadow-lg transition">
+            <div className="p-6">
+              <div className="flex items-center justify-between mb-4">
+                <h3 className="text-lg font-medium text-gray-700">Open Trips</h3>
+                <div className="text-yellow-500 transform transition duration-300 group-hover:scale-125">
+                  <FontAwesomeIcon icon={faMapMarked} size="lg" />
                 </div>
               </div>
-              <div className="bg-gray-300 p-4 rounded-lg flex items-center justify-between">
-                <div>
-                  <span className="bg-yellow-500 text-white px-2 py-1 rounded">Private Trip</span>
-                  <div className="text-4xl font-bold text-yellow-500 mt-2">{data.total_private_trip_participants}</div>
-                  <div className="text-gray-700">Peserta</div>
+              <p className="text-4xl font-bold text-yellow-500">{data.total_open_trip}</p>
+            </div>
+            <div className="bg-yellow-500 h-1"></div>
+          </div>
+
+          {/* Private Trips */}
+          <div className="bg-white rounded-lg shadow-md overflow-hidden group hover:shadow-lg transition">
+            <div className="p-6">
+              <div className="flex items-center justify-between mb-4">
+                <h3 className="text-lg font-medium text-gray-700">Private Trips</h3>
+                <div className="text-yellow-500 transform transition duration-300 group-hover:scale-125">
+                  <FontAwesomeIcon icon={faMapMarked} size="lg" />
+                </div>
+              </div>
+              <p className="text-4xl font-bold text-yellow-500">{data.total_private_trip}</p>
+            </div>
+            <div className="bg-yellow-500 h-1"></div>
+          </div>
+
+          {/* Total Transaksi */}
+          <div className="bg-white rounded-lg shadow-md overflow-hidden group hover:shadow-lg transition">
+            <div className="p-6">
+              <div className="flex items-center justify-between mb-4">
+                <h3 className="text-lg font-medium text-gray-700">Total Transaksi</h3>
+                <div className="text-yellow-500 transform transition duration-300 group-hover:scale-125">
+                  <FontAwesomeIcon icon={faExchangeAlt} size="lg" />
+                </div>
+              </div>
+              <p className="text-4xl font-bold text-yellow-500">
+                {data.total_open_trip_transactions + data.total_private_trip_transactions}
+              </p>
+            </div>
+            <div className="bg-yellow-500 h-1"></div>
+          </div>
+
+          {/* Total Pendapatan */}
+          <div className="bg-white rounded-lg shadow-md overflow-hidden group hover:shadow-lg transition">
+            <div className="p-6">
+              <div className="flex items-center justify-between mb-4">
+                <h3 className="text-lg font-medium text-gray-700">Total Pendapatan</h3>
+                <div className="text-green-500 transform transition duration-300 group-hover:scale-125">
+                  <FontAwesomeIcon icon={faMoneyBillWave} size="lg" />
+                </div>
+              </div>
+              <p className="text-4xl font-bold text-green-500">
+                {new Intl.NumberFormat('id-ID').format(data.total_revenue)}
+              </p>
+            </div>
+            <div className="bg-green-500 h-1"></div>
+          </div>
+        </div>
+
+        {/* Trip Details */}
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
+          {/* Open Trip */}
+          <div className="bg-white rounded-lg shadow-md p-6">
+            <h2 className="text-xl font-semibold mb-6 text-gray-800 border-b pb-3">Detail Open Trip</h2>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <div className="bg-yellow-50 p-5 rounded-lg group hover:shadow-md transition">
+                <div className="flex items-center justify-between">
+                  <span className="text-gray-600 font-medium">Transaksi</span>
+                  <div className="text-yellow-500 transform transition duration-300 group-hover:scale-125">
+                    <FontAwesomeIcon icon={faReceipt} size="lg" />
+                  </div>
+                </div>
+                <div className="mt-4 text-3xl font-bold text-yellow-600">
+                  {data.total_open_trip_transactions}
+                  <span className="text-sm font-normal text-gray-500 ml-1">Pesanan</span>
+                </div>
+              </div>
+
+              <div className="bg-yellow-50 p-5 rounded-lg group hover:shadow-md transition">
+                <div className="flex items-center justify-between">
+                  <span className="text-gray-600 font-medium">Partisipan</span>
+                  <div className="text-yellow-500 transform transition duration-300 group-hover:scale-125">
+                    <FontAwesomeIcon icon={faUsers} size="lg" />
+                  </div>
+                </div>
+                <div className="mt-4 text-3xl font-bold text-yellow-600">
+                  {data.total_open_trip_participants}
+                  <span className="text-sm font-normal text-gray-500 ml-1">Orang</span>
                 </div>
               </div>
             </div>
           </div>
-          {/* Transaksi */}
-          <div className="bg-white p-6 rounded-lg shadow">
-            <h2 className="text-lg font-semibold mb-4">Transaksi</h2>
-            <div className="grid grid-cols-2 gap-4">
-              <div className="bg-gray-300 p-4 rounded-lg flex items-center justify-between">
-                <div>
-                  <div className="bg-yellow-500 text-white px-2 py-1 rounded">Peserta Belum Membayar</div>
-                  <div className="text-4xl font-bold text-yellow-500 mt-2">{data.total_unpaid}</div>
-                  <div className="text-gray-700">Peserta</div>
+
+          {/* Private Trip */}
+          <div className="bg-white rounded-lg shadow-md p-6">
+            <h2 className="text-xl font-semibold mb-6 text-gray-800 border-b pb-3">Detail Private Trip</h2>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <div className="bg-blue-50 p-5 rounded-lg group hover:shadow-md transition">
+                <div className="flex items-center justify-between">
+                  <span className="text-gray-600 font-medium">Transaksi</span>
+                  <div className="text-blue-500 transform transition duration-300 group-hover:scale-125">
+                    <FontAwesomeIcon icon={faReceipt} size="lg" />
+                  </div>
+                </div>
+                <div className="mt-4 text-3xl font-bold text-blue-600">
+                  {data.total_private_trip_transactions}
+                  <span className="text-sm font-normal text-gray-500 ml-1">Pesanan</span>
                 </div>
               </div>
-              <div className="bg-gray-300 p-4 rounded-lg flex items-center justify-between">
-                <div>
-                  <div className="bg-yellow-500 text-white px-2 py-1 rounded">Total Pendapatan</div>
-                  <div className="text-4xl font-bold text-yellow-500 mt-2">{data.total_revenue}</div>
-                  <div className="text-gray-700">Rupiah</div>
+
+              <div className="bg-blue-50 p-5 rounded-lg group hover:shadow-md transition">
+                <div className="flex items-center justify-between">
+                  <span className="text-gray-600 font-medium">Partisipan</span>
+                  <div className="text-blue-500 transform transition duration-300 group-hover:scale-125">
+                    <FontAwesomeIcon icon={faUserFriends} size="lg" />
+                  </div>
+                </div>
+                <div className="mt-4 text-3xl font-bold text-blue-600">
+                  {data.total_private_trip_participants}
+                  <span className="text-sm font-normal text-gray-500 ml-1">Orang</span>
                 </div>
               </div>
             </div>
           </div>
-        </div> 
+        </div>
+
+        {/* Transactions Status */}
+        <div className="bg-white rounded-lg shadow-md p-6">
+          <h2 className="text-xl font-semibold mb-6 text-gray-800 border-b pb-3">Payment Status</h2>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+            <div className="bg-red-50 p-5 rounded-lg group hover:shadow-md transition">
+              <div className="flex items-center justify-between">
+                <span className="text-gray-600 font-medium">Belum Membayar</span>
+                <div className="text-red-500 transform transition duration-300 group-hover:scale-125">
+                  <FontAwesomeIcon icon={faTimesCircle} size="lg" />
+                </div>
+              </div>
+              <div className="mt-4 text-3xl font-bold text-red-600">
+                {data.total_unpaid}
+                <span className="text-sm font-normal text-gray-500 ml-1">Partisipan</span>
+              </div>
+            </div>
+
+            <div className="bg-green-50 p-5 rounded-lg group hover:shadow-md transition">
+              <div className="flex items-center justify-between">
+                <span className="text-gray-600 font-medium">Sudah Membayar</span>
+                <div className="text-green-500 transform transition duration-300 group-hover:scale-125">
+                  <FontAwesomeIcon icon={faCheckCircle} size="lg" />
+                </div>
+              </div>
+              <div className="mt-4 text-3xl font-bold text-green-600">
+                {data.total_paid}
+                <span className="text-sm font-normal text-gray-500 ml-1">partisipan</span>
+              </div>
+            </div>
+
+            <div className="bg-green-50 p-5 rounded-lg group hover:shadow-md transition">
+              <div className="flex items-center justify-between">
+                <span className="text-gray-600 font-medium">Total Pendapatan</span>
+                <div className="text-green-500 transform transition duration-300 group-hover:scale-125">
+                  <FontAwesomeIcon icon={faCreditCard} size="lg" />
+                </div>
+              </div>
+              <div className="mt-4 text-2xl font-bold text-green-600">
+                Rp {new Intl.NumberFormat('id-ID').format(data.total_revenue)}
+              </div>
+            </div>
+          </div>
+        </div>
       </div>
     </div>
- 
   );
 };
 
