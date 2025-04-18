@@ -46,6 +46,17 @@ const Sidebar = () => {
         <ul className="font-medium">
           <li className="mb-4">
             <a
+              href="/dashboard"
+              className={`flex items-center p-2 rounded-lg transition-colors duration-200 ${isActive("/dashboard") ? "bg-[#FFC100] text-white" : "text-gray-700 hover:bg-[#FFC100] hover:text-white"
+                }`}
+            >
+              <FaFileAlt className="mr-2" />
+              Dashboard
+            </a>
+          </li>
+
+          <li className="mb-4">
+            <a
               href="/user"
               className={`flex items-center p-2 rounded-lg transition-colors duration-200 ${isActive("/user") ? "bg-[#FFC100] text-white" : "text-gray-700 hover:bg-[#FFC100] hover:text-white"
                 }`}
