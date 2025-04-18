@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { FaUser, FaMountain, FaChevronDown, FaReceipt, FaFileAlt, FaUsers, FaSignOutAlt } from 'react-icons/fa';
 import logo from '../assets/logo.svg';
+import Icon from '../assets/mount.png';
 import { useNavigate, useLocation } from 'react-router-dom';
 
 const Sidebar = () => {
@@ -166,6 +167,12 @@ const Sidebar = () => {
           </li>
         </ul>
       </nav>
+
+      <img
+        src={Icon}
+        alt="background"
+        className="absolute bottom-0 left-16 pointer-events-none"
+      />
     </div>
   );
 };

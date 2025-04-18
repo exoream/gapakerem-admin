@@ -2,8 +2,12 @@ import React, { useState, useEffect } from "react";
 import axios from "axios";
 import Cookies from "js-cookie";
 import { useNavigate } from "react-router-dom";
+import { ToastContainer, toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
+import Loading from "../components/Loading2";
 
 const AddOpenTrip = () => {
+  const [loadingUpload, setLoadingUpload] = useState(false);
   const [formData, setFormData] = useState({
     mountain_name: "",
     mountain_photo: null,
@@ -27,7 +31,12 @@ const AddOpenTrip = () => {
       const res = await axios.get("https://gapakerem.vercel.app/guides");
       setGuides(res.data.data.guides);
     } catch (error) {
-      console.error("Gagal ambil data guide:", error);
+      console.error("Error :", error.response);
+      toast.error(error.response.data.message, {
+        position: "top-center",
+        autoClose: 3000,
+        hideProgressBar: true,
+      });
     }
   };
 
@@ -36,7 +45,12 @@ const AddOpenTrip = () => {
       const res = await axios.get("https://gapakerem.vercel.app/porters");
       setPorters(res.data.data.porters);
     } catch (error) {
-      console.error("Gagal ambil data porter:", error);
+      console.error("Error :", error.response);
+      toast.error(error.response.data.message, {
+        position: "top-center",
+        autoClose: 3000,
+        hideProgressBar: true,
+      });
     }
   };
 
@@ -71,31 +85,29 @@ const AddOpenTrip = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-  
+    setLoadingUpload(true);
+
     const token = Cookies.get("token");
-  
+
     const formDataToSend = new FormData();
     formDataToSend.append("mountain_name", formData.mountain_name);
-    formDataToSend.append("mountain_photo", formData.mountain_photo); // File
+    formDataToSend.append("mountain_photo", formData.mountain_photo);
     formDataToSend.append("description", formData.description);
     formDataToSend.append("equipment", formData.equipment);
     formDataToSend.append("estimation_time", formData.estimation_time);
 
-    // ✅ pastikan price adalah number
-    formDataToSend.append("price", Number(formData.price)); 
+    formDataToSend.append("price", Number(formData.price));
     formDataToSend.append("trip_type", "open");
 
-    // ✅ open_trip butuh number untuk id_guide dan porters
     const openTripData = {
       traveling_time: formData.traveling_time,
       agenda: formData.agenda,
-      id_guide: Number(formData.id_guide), // <- ini penting
-      porters: formData.porter_ids.map((id) => Number(id)), // <- ini juga penting
+      id_guide: Number(formData.id_guide),
+      porters: formData.porter_ids.map((id) => Number(id)),
     };
 
     formDataToSend.append("open_trip", JSON.stringify(openTripData));
 
-  
     try {
       const res = await axios.post(
         "https://gapakerem.vercel.app/trips/open",
@@ -107,115 +119,174 @@ const AddOpenTrip = () => {
           },
         }
       );
-  
-      alert("Trip berhasil ditambahkan!");
-      console.log(res.data);
+
+      toast.success(res.data.message, {
+        position: "top-center",
+        autoClose: 3000,
+        hideProgressBar: true,
+      });
+
       navigate("/opentrip");
-    } catch (err) {
-      console.error("Gagal tambah trip:", err.response?.data || err.message);
-      alert("Gagal tambah trip: " + (err.response?.data?.message || "Unknown Error"));
+    } catch (error) {
+      console.error("Error :", error.response);
+      toast.error(error.response.data.message, {
+        position: "top-center",
+        autoClose: 3000,
+        hideProgressBar: true,
+      });
+    } finally {
+      setLoadingUpload(false);
     }
   };
-  
-  
 
   return (
-    <div className="max-w-2xl mx-auto bg-white p-6 rounded shadow-md">
-      <h2 className="text-xl font-bold mb-4">Tambah Open Trip</h2>
-      <form onSubmit={handleSubmit} className="space-y-4">
-        <input
-          type="text"
-          name="mountain_name"
-          placeholder="Nama Gunung"
-          className="w-full border p-2 rounded"
-          value={formData.mountain_name}
-          onChange={handleChange}
-        />
-        <input
-          type="file"
-          name="mountain_photo"
-          className="w-full border p-2 rounded"
-          onChange={handleChange}
-        />
-        <textarea
-          name="description"
-          placeholder="Deskripsi"
-          className="w-full border p-2 rounded"
-          value={formData.description}
-          onChange={handleChange}
-        />
-        <textarea
-          name="equipment"
-          placeholder="Peralatan"
-          className="w-full border p-2 rounded"
-          value={formData.equipment}
-          onChange={handleChange}
-        />
-        <input
-          type="text"
-          name="estimation_time"
-          placeholder="Estimasi Waktu (contoh: 2 malam)"
-          className="w-full border p-2 rounded"
-          value={formData.estimation_time}
-          onChange={handleChange}
-        />
-        <input
-          type="number"
-          name="price"
-          placeholder="Harga"
-          className="w-full border p-2 rounded"
-          value={formData.price}
-          onChange={handleChange}
-        />
-        <input
-          type="time"
-          name="traveling_time"
-          className="w-full border p-2 rounded"
-          value={formData.traveling_time}
-          onChange={handleChange}
-        />
-        <textarea
-          name="agenda"
-          placeholder="Agenda"
-          className="w-full border p-2 rounded"
-          value={formData.agenda}
-          onChange={handleChange}
-        />
-        <select
-          name="id_guide"
-          className="w-full border p-2 rounded"
-          value={formData.id_guide}
-          onChange={handleChange}
-        >
-          <option value="">Pilih Guide</option>
-          {guides.map((guide) => (
-            <option key={guide.id} value={guide.id}>
-              {guide.name}
-            </option>
-          ))}
-        </select>
-        <div className="space-y-2">
-          <label className="block font-semibold">Pilih Porter</label>
-          {porters.map((porter) => (
-            <div key={porter.id} className="flex items-center gap-2">
-              <input
-                type="checkbox"
-                name="porter_ids"
-                value={porter.id}
-                checked={formData.porter_ids.includes(porter.id)}
-                onChange={handleChange}
-              />
-              <span>{porter.name}</span>
+    <div className="p-10 flex items-center justify-center">
+      <div className="w-2/3 rounded-xl shadow-lg p-10">
+        <h1 className="text-3xl font-bold text-gray-800">Tambah Open Trip</h1>
+        <form onSubmit={handleSubmit} className="space-y-4">
+
+          <div className="mt-10 grid grid-cols-3 items-center gap-4">
+            <label className="font-medium">Nama Gunung</label>
+            <input
+              type="text"
+              name="mountain_name"
+              value={formData.mountain_name}
+              onChange={handleChange}
+              className="col-span-2 border border-gray-300 text-gray-900 text-sm rounded-full focus:outline-none focus:ring-2 focus:ring-[#FFC100] focus:border-transparent w-full p-3"
+            />
+          </div>
+
+          <div className="mt-10 grid grid-cols-3 items-center gap-4">
+            <label className="font-medium">Foto Gunung</label>
+            <input
+              type="file"
+              name="mountain_photo"
+              onChange={handleChange}
+              className="col-span-2 border border-gray-300 text-gray-900 text-sm rounded-full focus:outline-none focus:ring-2 focus:ring-[#FFC100] focus:border-transparent w-full p-3"
+            />
+          </div>
+
+          <div className="mt-10 grid grid-cols-3 items-center gap-4">
+            <label className="font-medium">Deskripsi</label>
+            <textarea
+              type="text"
+              name="description"
+              value={formData.description}
+              onChange={handleChange}
+              rows={4}
+              className="col-span-2 border border-gray-300 text-gray-900 text-sm rounded-xl focus:outline-none focus:ring-2 focus:ring-[#FFC100] focus:border-transparent w-full p-3"
+            />
+          </div>
+
+          <div className="mt-10 grid grid-cols-3 items-center gap-4">
+            <label className="font-medium">Peralatan</label>
+            <input
+              type="text"
+              name="equipment"
+              value={formData.equipment}
+              onChange={handleChange}
+              className="col-span-2 border border-gray-300 text-gray-900 text-sm rounded-full focus:outline-none focus:ring-2 focus:ring-[#FFC100] focus:border-transparent w-full p-3"
+            />
+          </div>
+
+          <div className="mt-10 grid grid-cols-3 items-center gap-4">
+            <label className="font-medium">Estimasi Waktu</label>
+            <input
+              type="text"
+              name="estimation_time"
+              value={formData.estimation_time}
+              onChange={handleChange}
+              className="col-span-2 border border-gray-300 text-gray-900 text-sm rounded-full focus:outline-none focus:ring-2 focus:ring-[#FFC100] focus:border-transparent w-full p-3"
+            />
+          </div>
+
+          <div className="mt-10 grid grid-cols-3 items-center gap-4">
+            <label className="font-medium">Harga</label>
+            <input
+              type="number"
+              name="price"
+              value={formData.price}
+              onChange={handleChange}
+              className="col-span-2 border border-gray-300 text-gray-900 text-sm rounded-full focus:outline-none focus:ring-2 focus:ring-[#FFC100] focus:border-transparent w-full p-3"
+            />
+          </div>
+
+          <div className="mt-10 grid grid-cols-3 items-center gap-4">
+            <label className="font-medium">Harga</label>
+            <input
+              type="time"
+              name="traveling_time"
+              value={formData.traveling_time}
+              onChange={handleChange}
+              className="col-span-2 border border-gray-300 text-gray-900 text-sm rounded-full focus:outline-none focus:ring-2 focus:ring-[#FFC100] focus:border-transparent w-full p-3"
+            />
+          </div>
+
+          <div className="mt-10 grid grid-cols-3 items-center gap-4">
+            <label className="font-medium">Agenda</label>
+            <textarea
+              type="text"
+              name="agenda"
+              value={formData.agenda}
+              onChange={handleChange}
+              rows={4}
+              className="col-span-2 border border-gray-300 text-gray-900 text-sm rounded-xl focus:outline-none focus:ring-2 focus:ring-[#FFC100] focus:border-transparent w-full p-3"
+            />
+          </div>
+
+          <div className="mt-10 grid grid-cols-3 items-center gap-4">
+            <label className="font-medium">Agenda</label>
+            <select
+              name="id_guide"
+              className="col-span-2 border border-gray-300 text-gray-900 text-sm rounded-xl focus:outline-none focus:ring-2 focus:ring-[#FFC100] focus:border-transparent w-full p-3"
+              value={formData.id_guide}
+              onChange={handleChange}
+            >
+              <option value="">Pilih Guide</option>
+              {guides.map((guide) => (
+                <option key={guide.id} value={guide.id}>
+                  {guide.name}
+                </option>
+              ))}
+            </select>
+          </div>
+
+          <div className="mt-10 grid grid-cols-3 items-center">
+            <label className="font-medium">porter</label>
+            <div className="flex gap-4 justify-start items-center gap-5">
+              {porters.map((porter) => (
+                <div key={porter.id} className="flex items-center gap-2">
+                  <input
+                    type="checkbox"
+                    name="porter_ids"
+                    value={porter.id}
+                    checked={formData.porter_ids.includes(porter.id)}
+                    onChange={handleChange}
+                  />
+                  <span className="text-sm">{porter.name}</span>
+                </div>
+              ))}
             </div>
-          ))}
-        </div>
-        <button
-          type="submit"
-          className="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700"
-        >
-          Tambah Open Trip
-        </button>
-      </form>
+          </div>
+
+          <div className="mt-20">
+            {loadingUpload ? (
+              <Loading />
+            ) : (
+              <button
+                type="submit"
+                className="bg-[#FFC100] text-white px-4 py-2 text-sm rounded-full font-semibold hover:bg-yellow-400 transition-all duration-200"
+              >
+                Tambah
+              </button>
+            )}
+          </div>
+        </form>
+      </div>
+
+      <ToastContainer
+        className="absolute top-5 right-5 z-0"
+      />
     </div>
   );
 };
