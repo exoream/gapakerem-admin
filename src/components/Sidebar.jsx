@@ -38,11 +38,12 @@ const Sidebar = () => {
         <img src={logo} alt="Logo" className="rounded-full" width="100" height="100" onClick={handleLogoClick} />
       </div>
       <nav>
-        <ul className='font-medium'>
+        <ul className="font-medium">
           <li className="mb-4">
             <a
               href="/user"
-              className={`flex items-center p-2 rounded-lg ${isActive("/user") ? "bg-[#FFC100] text-white" : "text-gray-700"}`}
+              className={`flex items-center p-2 rounded-lg transition-colors duration-200 ${isActive("/user") ? "bg-[#FFC100] text-white" : "text-gray-700 hover:bg-[#FFC100] hover:text-white"
+                }`}
             >
               <FaUser className="mr-2" />
               User
@@ -52,19 +53,22 @@ const Sidebar = () => {
           <li className="mb-4">
             <a
               href="#"
-              className="flex items-center p-2 text-gray-700"
+              className="flex items-center p-2 text-gray-700 hover:bg-[#FFC100] hover:text-white rounded-lg transition-colors duration-200"
               onClick={toggleTrip}
             >
               <FaMountain className="mr-2" />
               Trip
-              <FaChevronDown className={`ml-auto ${isTripOpen ? 'transform rotate-180' : ''}`} />
+              <FaChevronDown className={`ml-auto ${isTripOpen ? "transform rotate-180" : ""}`} />
             </a>
             {isTripOpen && (
               <ul className="pl-6">
                 <li className="mb-2">
                   <a
                     href="/privtrip"
-                    className={`flex items-center p-2 ${isActive("/privtrip") ? "bg-[#FFC100] text-white rounded-lg" : "text-gray-600"}`}
+                    className={`flex items-center p-2 rounded-lg transition-colors duration-200 ${isActive("/privtrip")
+                      ? "bg-[#FFC100] text-white"
+                      : "text-gray-600 hover:bg-[#FFC100] hover:text-white"
+                      }`}
                   >
                     Private Trip
                   </a>
@@ -72,7 +76,10 @@ const Sidebar = () => {
                 <li className="mb-2">
                   <a
                     href="/opentrip"
-                    className={`flex items-center p-2 ${isActive("/opentrip") ? "bg-[#FFC100] text-white rounded-lg" : "text-gray-600"}`}
+                    className={`flex items-center p-2 rounded-lg transition-colors duration-200 ${isActive("/opentrip")
+                      ? "bg-[#FFC100] text-white"
+                      : "text-gray-600 hover:bg-[#FFC100] hover:text-white"
+                      }`}
                   >
                     Open Trip
                   </a>
@@ -84,19 +91,22 @@ const Sidebar = () => {
           <li className="mb-4">
             <a
               href="#"
-              className="flex items-center p-2 text-gray-700"
+              className="flex items-center p-2 text-gray-700 hover:bg-[#FFC100] hover:text-white rounded-lg transition-colors duration-200"
               onClick={toggleTransaksi}
             >
               <FaReceipt className="mr-2" />
               Transaksi
-              <FaChevronDown className={`ml-auto ${isTransaksiOpen ? 'transform rotate-180' : ''}`} />
+              <FaChevronDown className={`ml-auto ${isTransaksiOpen ? "transform rotate-180" : ""}`} />
             </a>
             {isTransaksiOpen && (
               <ul className="pl-6">
                 <li className="mb-2">
                   <a
                     href="/booking-open"
-                    className={`flex items-center p-2 ${isActive("/booking-open") ? "bg-[#FFC100] text-white rounded-lg" : "text-gray-600"}`}
+                    className={`flex items-center p-2 rounded-lg transition-colors duration-200 ${isActive("/booking-open")
+                      ? "bg-[#FFC100] text-white"
+                      : "text-gray-600 hover:bg-[#FFC100] hover:text-white"
+                      }`}
                   >
                     Open Trip
                   </a>
@@ -104,7 +114,10 @@ const Sidebar = () => {
                 <li className="mb-2">
                   <a
                     href="/booking-private"
-                    className={`flex items-center p-2 ${isActive("/booking-private") ? "bg-[#FFC100] text-white rounded-lg" : "text-gray-600"}`}
+                    className={`flex items-center p-2 rounded-lg transition-colors duration-200 ${isActive("/booking-private")
+                      ? "bg-[#FFC100] text-white"
+                      : "text-gray-600 hover:bg-[#FFC100] hover:text-white"
+                      }`}
                   >
                     Private Trip
                   </a>
@@ -116,7 +129,8 @@ const Sidebar = () => {
           <li className="mb-4">
             <a
               href="/laporan"
-              className={`flex items-center p-2 ${isActive("/laporan") ? "bg-[#FFC100] text-white rounded-lg" : "text-gray-700"}`}
+              className={`flex items-center p-2 rounded-lg transition-colors duration-200 ${isActive("/laporan") ? "bg-[#FFC100] text-white" : "text-gray-700 hover:bg-[#FFC100] hover:text-white"
+                }`}
             >
               <FaFileAlt className="mr-2" />
               Laporan
@@ -126,7 +140,10 @@ const Sidebar = () => {
           <li className="mb-4">
             <a
               href="/guideporter"
-              className={`flex items-center p-2 ${isActive("/guideporter") ? "bg-[#FFC100] text-white rounded-lg" : "text-gray-700"}`}
+              className={`flex items-center p-2 rounded-lg transition-colors duration-200 ${isActive("/guideporter")
+                ? "bg-[#FFC100] text-white"
+                : "text-gray-700 hover:bg-[#FFC100] hover:text-white"
+                }`}
             >
               <FaUsers className="mr-2" />
               Guide & Porter
@@ -134,7 +151,11 @@ const Sidebar = () => {
           </li>
 
           <li className="mt-auto">
-            <a href="#" className="flex items-center p-2 text-gray-700" onClick={handleLogout}>
+            <a
+              href="#"
+              className="flex items-center p-2 text-gray-700 hover:bg-[#FFC100] hover:text-white rounded-lg transition-colors duration-200"
+              onClick={handleLogout}
+            >
               <FaSignOutAlt className="mr-2" />
               Log out
             </a>
