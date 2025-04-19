@@ -101,7 +101,7 @@ const TranPrivTrip = () => {
       <div className="rounded-xl shadow-lg p-10">
         <div className="w-full p-8">
           <div className="flex justify-between items-center mb-8">
-            <h1 className="text-3xl font-bold text-gray-800">Open Trip</h1>
+            <h1 className="text-3xl font-bold text-gray-800">Private Trip</h1>
 
             <div className="relative w-full md:w-64">
               <input
@@ -138,7 +138,9 @@ const TranPrivTrip = () => {
                       key={item.id}
                       className={`border-b hover:bg-yellow-50 transition-colors ${index % 2 === 0 ? "bg-white" : "bg-gray-50"}`}
                     >
-                      <td className="py-4 px-6 text-gray-800">{index + 1}</td>
+                      <td className="py-4 px-6 text-gray-800">
+                        {(currentPage - 1) * itemsPerPage + index + 1}
+                      </td>
                       <td className="py-4 px-6 text-gray-800">{item.participant_name}</td>
                       <td className="py-4 px-6 text-gray-800">{item.phone_number}</td>
                       <td className="py-4 px-6 text-gray-800">{item.mountain_name}</td>
@@ -146,12 +148,12 @@ const TranPrivTrip = () => {
                         <span
                           className={`px-3 py-1 rounded-full text-sm font-semibold 
                             ${item.payment_status === 'paid' ? 'bg-green-100 text-green-700' :
-                              item.payment_status === 'unpaid' ? 'bg-yellow-100 text-yellow-700' :
+                              item.payment_status === 'unpaid' ? 'bg-red-100 text-red-700' :
                                 item.payment_status === 'rejected' ? 'bg-red-100 text-red-700' :
-                                  item.payment_status === 'approved' ? 'bg-blue-100 text-blue-700' :
+                                  item.payment_status === 'approved' ? 'bg-green-100 text-green-700' :
                                     'bg-gray-100 text-gray-700'}`}
                         >
-                          {item.payment_status}
+                          {item.payment_status.charAt(0).toUpperCase() + item.payment_status.slice(1)}
                         </span>
                       </td>
                       <td className="py-4 px-6">
