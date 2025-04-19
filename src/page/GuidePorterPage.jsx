@@ -135,14 +135,31 @@ const GuidePorter = () => {
 
     try {
       const formData = new FormData();
+      let hasChange = false;
 
       if (updatedGuide.name && updatedGuide.name.trim() !== "") {
         formData.append('name', updatedGuide.name.trim());
+        hasChange = true;
       }
 
       if (image && image !== updatedGuide.photo) {
-        const file = dataURLtoFile(image, 'photo.png');
-        formData.append('photo', file);
+        try {
+          const file = dataURLtoFile(image, 'photo.png');
+          formData.append('photo', file);
+          hasChange = true;
+        } catch (imageError) {
+          console.error("Image processing error:", imageError);
+        }
+      }
+
+      if (!hasChange) {
+        toast.info("Tidak ada perubahan untuk disimpan.", {
+          position: 'top-center',
+          autoClose: 3000,
+          hideProgressBar: true,
+        });
+        setLoadingUpload(false);
+        return;
       }
 
       const response = await axios.put(
@@ -167,9 +184,10 @@ const GuidePorter = () => {
         autoClose: 3000,
         hideProgressBar: true,
       });
+
     } catch (error) {
       console.error('Error Response:', error.response);
-      toast.error(error.response.data.message, {
+      toast.error(error.response?.data?.message || 'Terjadi kesalahan.', {
         position: 'top-center',
         autoClose: 3000,
         hideProgressBar: true,
@@ -179,6 +197,7 @@ const GuidePorter = () => {
       setLoadingUpload(false);
     }
   };
+
 
   const handleAddPorter = async (newPorter) => {
     setLoadingUpload(true)
@@ -225,13 +244,29 @@ const GuidePorter = () => {
     try {
       const formData = new FormData();
 
-      if (updatedPorter.name && updatedPorter.name.trim() !== "") {
-        formData.append('name', updatedPorter.name.trim());
+      const trimmedName = updatedPorter.name?.trim();
+      const isNameChanged = trimmedName && trimmedName !== currentPorter.name;
+      const isPhotoChanged = image && image !== currentPorter.photo;
+
+      if (!isNameChanged && !isPhotoChanged) {
+        toast.info("Tidak ada perubahan yang dikirim.");
+        setLoadingUpload(false);
+        return;
       }
 
-      if (image && image !== updatedPorter.photo) {
-        const file = dataURLtoFile(image, 'photo.png');
-        formData.append('photo', file);
+      if (isNameChanged) {
+        formData.append("name", trimmedName);
+      }
+
+      if (isPhotoChanged) {
+        try {
+          const file = dataURLtoFile(image, "photo.png");
+          formData.append("photo", file);
+        } catch (e) {
+          toast.error("Gagal memproses foto.");
+          setLoadingUpload(false);
+          return;
+        }
       }
 
       const response = await axios.put(
@@ -239,8 +274,8 @@ const GuidePorter = () => {
         formData,
         {
           headers: {
-            'Authorization': `Bearer ${Cookies.get('token')}`,
-            'Content-Type': 'multipart/form-data',
+            Authorization: `Bearer ${Cookies.get("token")}`,
+            "Content-Type": "multipart/form-data",
           },
         }
       );
@@ -252,15 +287,15 @@ const GuidePorter = () => {
       );
 
       toast.success(response.data.message, {
-        position: 'top-center',
+        position: "top-center",
         autoClose: 3000,
         hideProgressBar: true,
       });
-
     } catch (error) {
-      console.error('Error Response:', error.response);
-      toast.error(error.response.data.message, {
-        position: 'top-center',
+      console.error("Full error:", error);
+      const errorMessage = error.response?.data?.message || "Terjadi kesalahan.";
+      toast.error(errorMessage, {
+        position: "top-center",
         autoClose: 3000,
         hideProgressBar: true,
       });
@@ -521,6 +556,7 @@ const GuidePorter = () => {
                 <label className="font-medium">Nama</label>
                 <input
                   id="name"
+                  name='name'
                   type="text"
                   defaultValue={currentGuide ? currentGuide.name : currentPorter.name}
                   autoComplete="off"
@@ -543,6 +579,7 @@ const GuidePorter = () => {
 
               <input
                 type="file"
+                name='photo'
                 accept="image/*"
                 onChange={handleImageUpload}
                 className="w-full border border-gray-300 py-2 px-6 rounded-full"
