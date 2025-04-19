@@ -7,6 +7,7 @@ import Loading from '../components/Loading2';
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import Background from '../assets/background.png';
+import { jwtDecode } from 'jwt-decode';
 
 const Login = () => {
   const [username, setUsername] = useState('');
@@ -21,12 +22,24 @@ const Login = () => {
     try {
       const response = await axios.post('https://gapakerem.vercel.app/login', { username, password });
       const token = response.data.data.token;
+
+      const decoded = jwtDecode(token);
+
+      if (decoded.role !== 'admin') {
+        toast.error('Akses hanya untuk admin!', {
+          position: "top-center",
+          autoClose: 3000,
+          hideProgressBar: true,
+        });
+        return;
+      }
+
       Cookies.set('token', token, { expires: 1 });
       navigate('/dashboard');
 
     } catch (error) {
       console.error("Error :", error.response);
-      toast.error(error.response.data.message, {
+      toast.error(error.response?.data?.message || "Login gagal", {
         position: "top-center",
         autoClose: 3000,
         hideProgressBar: true,
@@ -36,6 +49,7 @@ const Login = () => {
       setLoading(false);
     }
   };
+
 
   return (
     <div className="relative z-[1] flex items-center justify-center min-h-screen bg-gray-100">

@@ -4,6 +4,7 @@ import axios from 'axios';
 import Cookies from 'js-cookie';
 import Pagination from '../components/Pagination';
 import Loading from '../components/Loading';
+import Loading2 from '../components/Loading2';
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 
@@ -11,6 +12,7 @@ const GuidePorter = () => {
   const [guides, setGuides] = useState([]);
   const [porters, setPorters] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [loadingUpload, setLoadingUpload] = useState(false);
   const [showEditPopup, setShowEditPopup] = useState(false);
   const [showAddPopup, setShowAddPopup] = useState(false);
   const [currentGuide, setCurrentGuide] = useState(null);
@@ -90,6 +92,8 @@ const GuidePorter = () => {
   };
 
   const handleAddGuide = async (newGuide) => {
+    setLoadingUpload(true)
+
     try {
       const formData = new FormData();
       formData.append('name', newGuide.name);
@@ -106,7 +110,6 @@ const GuidePorter = () => {
       });
 
       setGuides((prevGuides) => [...prevGuides, response.data.data]);
-      closePopup();
 
       toast.success(response.data.message, {
         position: "top-center",
@@ -121,10 +124,15 @@ const GuidePorter = () => {
         autoClose: 3000,
         hideProgressBar: true,
       });
+    } finally {
+      closePopup();
+      setLoadingUpload(false)
     }
   };
 
   const handleEditGuide = async (updatedGuide) => {
+    setLoadingUpload(true)
+
     try {
       const formData = new FormData();
       formData.append('name', updatedGuide.name);
@@ -143,7 +151,6 @@ const GuidePorter = () => {
       setGuides((prevGuides) =>
         prevGuides.map((guide) => (guide.id === response.data.data.id ? response.data.data : guide))
       );
-      closePopup();
 
       toast.success(response.data.message, {
         position: "top-center",
@@ -158,10 +165,15 @@ const GuidePorter = () => {
         autoClose: 3000,
         hideProgressBar: true,
       });
+    } finally {
+      closePopup();
+      setLoadingUpload(false)
     }
   };
 
   const handleAddPorter = async (newPorter) => {
+    setLoadingUpload(true)
+
     try {
       const formData = new FormData();
       formData.append('name', newPorter.name);
@@ -178,7 +190,6 @@ const GuidePorter = () => {
       });
 
       setPorters((prevPorters) => [...prevPorters, response.data.data]);
-      closePopup();
 
       toast.success(response.data.message, {
         position: "top-center",
@@ -193,10 +204,15 @@ const GuidePorter = () => {
         autoClose: 3000,
         hideProgressBar: true,
       });
+    } finally {
+      closePopup();
+      setLoadingUpload(false)
     }
   };
 
   const handleEditPorter = async (updatedPorter) => {
+    setLoadingUpload(true)
+
     try {
       const formData = new FormData();
       formData.append('name', updatedPorter.name);
@@ -215,7 +231,6 @@ const GuidePorter = () => {
       setPorters((prevPorters) =>
         prevPorters.map((porter) => (porter.id === response.data.data.id ? response.data.data : porter))
       );
-      closePopup();
 
       toast.success(response.data.message, {
         position: "top-center",
@@ -230,6 +245,9 @@ const GuidePorter = () => {
         autoClose: 3000,
         hideProgressBar: true,
       });
+    } finally {
+      closePopup();
+      setLoadingUpload(false)
     }
   };
 
@@ -251,14 +269,17 @@ const GuidePorter = () => {
     const confirmDelete = window.confirm("Apakah Anda yakin ingin menghapus guide ini?");
     if (confirmDelete) {
       try {
+        setLoadingUpload(true)
+
         await axios.delete(`https://gapakerem.vercel.app/guides/${id}`, {
           headers: {
             'Authorization': `Bearer ${Cookies.get('token')}`,
           },
         });
+
         setGuides((prevGuides) => prevGuides.filter((guide) => guide.id !== id));
 
-        toast.success(confirmDelete.data.message, {
+        toast.success("Guide berhasil dihapus", {
           position: "top-center",
           autoClose: 3000,
           hideProgressBar: true,
@@ -271,6 +292,8 @@ const GuidePorter = () => {
           autoClose: 3000,
           hideProgressBar: true,
         });
+      } finally {
+        setLoadingUpload(false)
       }
     }
   };
@@ -279,6 +302,7 @@ const GuidePorter = () => {
     const confirmDelete = window.confirm("Apakah Anda yakin ingin menghapus porter ini?");
     if (confirmDelete) {
       try {
+        setLoadingUpload(true)
         await axios.delete(`https://gapakerem.vercel.app/porters/${id}`, {
           headers: {
             'Authorization': `Bearer ${Cookies.get('token')}`,
@@ -286,7 +310,7 @@ const GuidePorter = () => {
         });
         setPorters((prevPorters) => prevPorters.filter((porter) => porter.id !== id));
 
-        toast.success(confirmDelete.data.message, {
+        toast.success("Porter berhasil dihapus", {
           position: "top-center",
           autoClose: 3000,
           hideProgressBar: true,
@@ -299,6 +323,8 @@ const GuidePorter = () => {
           autoClose: 3000,
           hideProgressBar: true,
         });
+      } finally {
+        setLoadingUpload(false)
       }
     }
   };
@@ -345,7 +371,9 @@ const GuidePorter = () => {
                     key={guide.id}
                     className={`border-b hover:bg-yellow-50 transition-colors ${index % 2 === 0 ? "bg-white" : "bg-gray-50"}`}
                   >
-                    <td className="py-4 px-6 text-gray-800">{index + 1}</td>
+                    <td className="py-4 px-6 text-gray-800">
+                      {(currentPageGuide - 1) * itemsPerPage + index + 1}
+                    </td>
                     <td className="py-4 px-6 text-gray-800">
                       <img src={guide.photo} alt="Guide Photo" className="rounded-md h-20 w-20" />
                     </td>
@@ -413,7 +441,9 @@ const GuidePorter = () => {
                     key={index}
                     className={`border-b hover:bg-yellow-50 transition-colors ${index % 2 === 0 ? "bg-white" : "bg-gray-50"}`}
                   >
-                    <td className="py-4 px-6 text-gray-800">{index + 1}</td>
+                    <td className="py-4 px-6 text-gray-800">
+                      {(currentPagePorter - 1) * itemsPerPage + index + 1}
+                    </td>
                     <td className="py-4 px-6 text-gray-800">
                       <img src={porter.photo || "https://placehold.co/50"} alt="Porter Photo" className="rounded-md w-20 h-20" />
                     </td>
@@ -500,8 +530,14 @@ const GuidePorter = () => {
               />
 
               <div className="mt-10 flex justify-center gap-5">
-                <button className="bg-yellow-500 text-white px-4 py-2 rounded-lg hover:bg-yellow-600 transition" type="submit">Edit</button>
-                <button className="bg-red-500 text-white px-4 py-2 rounded-lg hover:bg-red-600 transition" onClick={closePopup}>Batal</button>
+                {loadingUpload ? (
+                  <Loading2 />
+                ) : (
+                  <>
+                    <button className="bg-yellow-500 text-white px-4 py-2 rounded-lg hover:bg-yellow-600 transition" type="submit">Edit</button>
+                    <button className="bg-red-500 text-white px-4 py-2 rounded-lg hover:bg-red-600 transition" onClick={closePopup}>Batal</button>
+                  </>
+                )}
               </div>
             </form>
           </div>
@@ -554,8 +590,14 @@ const GuidePorter = () => {
               />
 
               <div className="mt-10 flex justify-center gap-5">
-                <button className="bg-yellow-500 text-white px-4 py-2 rounded-lg hover:bg-yellow-600 transition" type="submit">Tambah</button>
-                <button className="bg-red-500 text-white px-4 py-2 rounded-lg hover:bg-red-600 transition" onClick={closePopup}>Batal</button>
+                {loadingUpload ? (
+                  <Loading2 />
+                ) : (
+                  <>
+                    <button className="bg-yellow-500 text-white px-4 py-2 rounded-lg hover:bg-yellow-600 transition" type="submit">Tambah</button>
+                    <button className="bg-red-500 text-white px-4 py-2 rounded-lg hover:bg-red-600 transition" onClick={closePopup}>Batal</button>
+                  </>
+                )}
               </div>
             </form>
           </div>

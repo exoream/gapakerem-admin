@@ -143,7 +143,9 @@ const OpenTrip = () => {
                     key={trip.id}
                     className={`border-b hover:bg-yellow-50 transition-colors ${index % 2 === 0 ? "bg-white" : "bg-gray-50"}`}
                   >
-                    <td className="py-4 px-6 text-gray-800">{index + 1}</td>
+                    <td className="py-4 px-6 text-gray-800">
+                      {(pagination.current_page - 1) * pagination.limit + index + 1}
+                    </td>
                     <td className="py-4 px-6 text-gray-800">{trip.mountain_name}</td>
                     <td className="py-4 px-6 text-gray-800">Rp {trip.price.toLocaleString()}</td>
                     <td className="py-4 px-6">

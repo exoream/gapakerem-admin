@@ -65,8 +65,8 @@ const LaporanTrip = () => {
         setTotalPrivateTrip(data.private_trip.total_price);
         setError('');
       } catch (err) {
-        console.error("Error Response:", error.response);
-        toast.error(error.response.data.message, {
+        console.error("Error Response:", err.response);
+        toast.error(err.response?.data?.message || "Terjadi kesalahan", {
           position: "top-center",
           autoClose: 3000,
           hideProgressBar: true,
@@ -83,34 +83,78 @@ const LaporanTrip = () => {
     const element = reportRef.current;
     if (!element) return;
 
-    const canvas = await html2canvas(element, {
-      scale: 2,
-      useCORS: true,
-    });
+    // Show loading indicator
+    setLoading(true);
 
-    const imgData = canvas.toDataURL('image/png');
-    const pdf = new jsPDF('p', 'mm', 'a4');
+    try {
+      // Create a new jsPDF instance
+      const pdf = new jsPDF('p', 'mm', 'a4');
 
-    const pdfWidth = pdf.internal.pageSize.getWidth();
-    const pdfHeight = pdf.internal.pageSize.getHeight();
+      // Define page dimensions
+      const pageWidth = pdf.internal.pageSize.getWidth();
+      const pageHeight = pdf.internal.pageSize.getHeight();
 
-    const imgWidth = pdfWidth;
-    const imgHeight = (canvas.height * imgWidth) / canvas.width;
+      // Define margins (in mm)
+      const margin = 15;
+      const contentWidth = pageWidth - (2 * margin);
+      const contentHeight = pageHeight - (2 * margin);
 
-    let heightLeft = imgHeight;
-    let position = 0;
+      // Get the total height of the element to determine how many pages we need
+      const elementHeight = element.offsetHeight;
+      const elementWidth = element.offsetWidth;
+      const scaleFactor = contentWidth / elementWidth;
 
-    pdf.addImage(imgData, 'PNG', 0, position, imgWidth, imgHeight);
-    heightLeft -= pdfHeight;
+      // Calculate the number of pages needed
+      const totalPages = Math.ceil((elementHeight * scaleFactor) / contentHeight);
 
-    while (heightLeft > 0) {
-      position = heightLeft - imgHeight;
-      pdf.addPage();
-      pdf.addImage(imgData, 'PNG', 0, position, imgWidth, imgHeight);
-      heightLeft -= pdfHeight;
+      // Process each page
+      for (let i = 0; i < totalPages; i++) {
+        // Only add a new page after the first page
+        if (i > 0) {
+          pdf.addPage();
+        }
+
+        // Calculate the portion of the element to capture for this page
+        const sourceTop = (contentHeight / scaleFactor) * i;
+        const sourceHeight = Math.min((contentHeight / scaleFactor), elementHeight - sourceTop);
+
+        // Create canvas for this portion
+        const canvas = await html2canvas(element, {
+          scale: 2,
+          useCORS: true,
+          windowHeight: element.scrollHeight,
+          windowWidth: element.scrollWidth,
+          x: 0,
+          y: sourceTop,
+          height: sourceHeight,
+          width: elementWidth
+        });
+
+        // Add image to PDF with margins
+        const imgData = canvas.toDataURL('image/png');
+        pdf.addImage(
+          imgData,
+          'PNG',
+          margin,
+          margin,
+          contentWidth,
+          (canvas.height * contentWidth) / canvas.width
+        );
+      }
+
+      // Save the PDF
+      pdf.save(`laporan-${selectedYear}-${selectedMonth}.pdf`);
+    } catch (error) {
+      console.error("Error generating PDF:", error);
+      toast.error("Gagal mengunduh laporan", {
+        position: "top-center",
+        autoClose: 3000,
+        hideProgressBar: true,
+      });
+    } finally {
+      // Hide loading indicator
+      setLoading(false);
     }
-
-    pdf.save(`laporan-${selectedYear}-${selectedMonth}.pdf`);
   };
 
   if (loading) return <Loading />;
@@ -211,7 +255,7 @@ const LaporanTrip = () => {
       </div>
 
       <div style={{ position: 'absolute', left: '-9999px', top: 0 }}>
-        <div ref={reportRef}>
+        <div ref={reportRef} className="pdf-report-container">
           <DownloadReport
             month={selectedMonth}
             year={selectedYear}

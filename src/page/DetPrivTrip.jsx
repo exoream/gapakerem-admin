@@ -172,12 +172,12 @@ const DetailPrivateTransaksi = () => {
           <span
             className={`px-3 py-1 rounded-full text-sm font-semibold 
               ${status === 'paid' ? 'bg-green-100 text-green-700' :
-                status === 'unpaid' ? 'bg-yellow-100 text-yellow-700' :
+                status === 'unpaid' ? 'bg-red-100 text-red-700' :
                   status === 'rejected' ? 'bg-red-100 text-red-700' :
-                    status === 'approved' ? 'bg-blue-100 text-blue-700' :
+                    status === 'approved' ? 'bg-green-100 text-green-700' :
                       'bg-gray-100 text-gray-700'}`}
           >
-            {status}
+            {status.charAt(0).toUpperCase() + status.slice(1)}
           </span>
         </div>
 
