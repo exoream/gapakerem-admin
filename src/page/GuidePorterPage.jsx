@@ -131,43 +131,52 @@ const GuidePorter = () => {
   };
 
   const handleEditGuide = async (updatedGuide) => {
-    setLoadingUpload(true)
+    setLoadingUpload(true);
 
     try {
       const formData = new FormData();
-      formData.append('name', updatedGuide.name);
+
+      if (updatedGuide.name && updatedGuide.name.trim() !== "") {
+        formData.append('name', updatedGuide.name.trim());
+      }
+
       if (image && image !== updatedGuide.photo) {
         const file = dataURLtoFile(image, 'photo.png');
         formData.append('photo', file);
       }
 
-      const response = await axios.put(`https://gapakerem.vercel.app/guides/${updatedGuide.id}`, formData, {
-        headers: {
-          'Authorization': `Bearer ${Cookies.get('token')}`,
-          'Content-Type': 'multipart/form-data',
-        },
-      });
+      const response = await axios.put(
+        `https://gapakerem.vercel.app/guides/${updatedGuide.id}`,
+        formData,
+        {
+          headers: {
+            'Authorization': `Bearer ${Cookies.get('token')}`,
+            'Content-Type': 'multipart/form-data',
+          },
+        }
+      );
 
       setGuides((prevGuides) =>
-        prevGuides.map((guide) => (guide.id === response.data.data.id ? response.data.data : guide))
+        prevGuides.map((guide) =>
+          guide.id === response.data.data.id ? response.data.data : guide
+        )
       );
 
       toast.success(response.data.message, {
-        position: "top-center",
+        position: 'top-center',
         autoClose: 3000,
         hideProgressBar: true,
       });
-
     } catch (error) {
-      console.error("Error Response:", error.response);
+      console.error('Error Response:', error.response);
       toast.error(error.response.data.message, {
-        position: "top-center",
+        position: 'top-center',
         autoClose: 3000,
         hideProgressBar: true,
       });
     } finally {
       closePopup();
-      setLoadingUpload(false)
+      setLoadingUpload(false);
     }
   };
 
@@ -211,43 +220,53 @@ const GuidePorter = () => {
   };
 
   const handleEditPorter = async (updatedPorter) => {
-    setLoadingUpload(true)
+    setLoadingUpload(true);
 
     try {
       const formData = new FormData();
-      formData.append('name', updatedPorter.name);
+
+      if (updatedPorter.name && updatedPorter.name.trim() !== "") {
+        formData.append('name', updatedPorter.name.trim());
+      }
+
       if (image && image !== updatedPorter.photo) {
         const file = dataURLtoFile(image, 'photo.png');
         formData.append('photo', file);
       }
 
-      const response = await axios.put(`https://gapakerem.vercel.app/porters/${updatedPorter.id}`, formData, {
-        headers: {
-          'Authorization': `Bearer ${Cookies.get('token')}`,
-          'Content-Type': 'multipart/form-data',
-        },
-      });
+      const response = await axios.put(
+        `https://gapakerem.vercel.app/porters/${updatedPorter.id}`,
+        formData,
+        {
+          headers: {
+            'Authorization': `Bearer ${Cookies.get('token')}`,
+            'Content-Type': 'multipart/form-data',
+          },
+        }
+      );
 
       setPorters((prevPorters) =>
-        prevPorters.map((porter) => (porter.id === response.data.data.id ? response.data.data : porter))
+        prevPorters.map((porter) =>
+          porter.id === response.data.data.id ? response.data.data : porter
+        )
       );
 
       toast.success(response.data.message, {
-        position: "top-center",
+        position: 'top-center',
         autoClose: 3000,
         hideProgressBar: true,
       });
 
     } catch (error) {
-      console.error("Error Response:", error.response);
+      console.error('Error Response:', error.response);
       toast.error(error.response.data.message, {
-        position: "top-center",
+        position: 'top-center',
         autoClose: 3000,
         hideProgressBar: true,
       });
     } finally {
       closePopup();
-      setLoadingUpload(false)
+      setLoadingUpload(false);
     }
   };
 
@@ -513,7 +532,7 @@ const GuidePorter = () => {
                 <label className="block font-medium mb-4" htmlFor="photo">Foto</label>
                 <div className="flex items-center">
                   <div className="w-24 h-24 border rounded-lg flex items-center justify-center">
-                    <img src={image || (currentGuide ? currentGuide.photo : currentPorter.photo)} alt="Current image" className="rounded-lg" />
+                    <img src={image || (currentGuide ? currentGuide.photo : currentPorter.photo)} alt="Current image" className="rounded-lg w-24 h-24" />
                   </div>
                   <div className="ml-4 text-gray-500 text-sm">
                     <p>Format jpg, jpeg, png</p>
@@ -573,7 +592,7 @@ const GuidePorter = () => {
                 <label className="block font-medium mb-4" htmlFor="photo">Foto</label>
                 <div className="flex items-center">
                   <div className="w-24 h-24 border rounded-lg flex items-center justify-center">
-                    <img src={image || "https://placehold.co/100"} alt="Placeholder image for uploading a photo" className="rounded-lg" />
+                    <img src={image || "https://placehold.co/100"} alt="Placeholder image for uploading a photo" className="rounded-lg w-24 h-24" />
                   </div>
                   <div className="ml-4 text-gray-500 text-sm">
                     <p>Format jpg, jpeg, png</p>

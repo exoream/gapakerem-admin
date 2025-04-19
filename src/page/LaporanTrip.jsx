@@ -1,11 +1,8 @@
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faDownload } from '@fortawesome/free-solid-svg-icons';
-import jsPDF from 'jspdf';
-import html2canvas from 'html2canvas';
 import axios from 'axios';
 import Cookies from 'js-cookie';
-import DownloadReport from './DownloadReport';
 import Loading from '../components/Loading';
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
@@ -40,7 +37,6 @@ const LaporanTrip = () => {
   const [totalPrivateTrip, setTotalPrivateTrip] = useState(0);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
-  const reportRef = useRef();
 
   useEffect(() => {
     const fetchData = async () => {
@@ -79,82 +75,10 @@ const LaporanTrip = () => {
     fetchData();
   }, [selectedMonth, selectedYear]);
 
-  const downloadPDF = async () => {
-    const element = reportRef.current;
-    if (!element) return;
+  const handleDownload = () => {
+    const printUrl = `/print-report?month=${selectedMonth}&year=${selectedYear}`;
 
-    // Show loading indicator
-    setLoading(true);
-
-    try {
-      // Create a new jsPDF instance
-      const pdf = new jsPDF('p', 'mm', 'a4');
-
-      // Define page dimensions
-      const pageWidth = pdf.internal.pageSize.getWidth();
-      const pageHeight = pdf.internal.pageSize.getHeight();
-
-      // Define margins (in mm)
-      const margin = 15;
-      const contentWidth = pageWidth - (2 * margin);
-      const contentHeight = pageHeight - (2 * margin);
-
-      // Get the total height of the element to determine how many pages we need
-      const elementHeight = element.offsetHeight;
-      const elementWidth = element.offsetWidth;
-      const scaleFactor = contentWidth / elementWidth;
-
-      // Calculate the number of pages needed
-      const totalPages = Math.ceil((elementHeight * scaleFactor) / contentHeight);
-
-      // Process each page
-      for (let i = 0; i < totalPages; i++) {
-        // Only add a new page after the first page
-        if (i > 0) {
-          pdf.addPage();
-        }
-
-        // Calculate the portion of the element to capture for this page
-        const sourceTop = (contentHeight / scaleFactor) * i;
-        const sourceHeight = Math.min((contentHeight / scaleFactor), elementHeight - sourceTop);
-
-        // Create canvas for this portion
-        const canvas = await html2canvas(element, {
-          scale: 2,
-          useCORS: true,
-          windowHeight: element.scrollHeight,
-          windowWidth: element.scrollWidth,
-          x: 0,
-          y: sourceTop,
-          height: sourceHeight,
-          width: elementWidth
-        });
-
-        // Add image to PDF with margins
-        const imgData = canvas.toDataURL('image/png');
-        pdf.addImage(
-          imgData,
-          'PNG',
-          margin,
-          margin,
-          contentWidth,
-          (canvas.height * contentWidth) / canvas.width
-        );
-      }
-
-      // Save the PDF
-      pdf.save(`laporan-${selectedYear}-${selectedMonth}.pdf`);
-    } catch (error) {
-      console.error("Error generating PDF:", error);
-      toast.error("Gagal mengunduh laporan", {
-        position: "top-center",
-        autoClose: 3000,
-        hideProgressBar: true,
-      });
-    } finally {
-      // Hide loading indicator
-      setLoading(false);
-    }
+    window.open(printUrl, '_blank');
   };
 
   if (loading) return <Loading />;
@@ -246,24 +170,11 @@ const LaporanTrip = () => {
         <div className="flex justify-end mt-10">
           <button
             className="bg-yellow-500 text-white w-12 h-12 flex items-center justify-center rounded-full hover:bg-yellow-600 transition"
-            onClick={downloadPDF}
+            onClick={handleDownload}
             aria-label="Download laporan PDF"
           >
             <FontAwesomeIcon icon={faDownload} />
           </button>
-        </div>
-      </div>
-
-      <div style={{ position: 'absolute', left: '-9999px', top: 0 }}>
-        <div ref={reportRef} className="pdf-report-container">
-          <DownloadReport
-            month={selectedMonth}
-            year={selectedYear}
-            openTrip={openTripData}
-            privateTrip={privateTripData}
-            totalOpen={totalOpenTrip}
-            totalPrivate={totalPrivateTrip}
-          />
         </div>
       </div>
 

@@ -17,15 +17,25 @@ import AddPrivTrip from "../page/AddPrivateTrip";
 import UserDetailView from "../page/UserDetailView";
 import ViewOpenTrip from "../page/ViewOpenTrip";
 import ViewPrivateTrip from "../page/ViewPrivateTrip";
+import PrintReport from "../page/PrintReport";
 
 function AppRoutes() {
     const location = useLocation();
     const isLoginPage = location.pathname === "/";
+    const isPrintPage = location.pathname === "/print-report";
 
     if (isLoginPage) {
         return (
             <Routes>
                 <Route path="/" element={<Login />} />
+            </Routes>
+        );
+    }
+
+    if (isPrintPage) {
+        return (
+            <Routes>
+                <Route path="/print-report" element={<PrintReport />} />
             </Routes>
         );
     }

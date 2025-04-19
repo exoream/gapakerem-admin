@@ -17,7 +17,7 @@ const getMonthName = (value) => {
   return months[parseInt(value, 10) - 1];
 };
 
-const DownloadReport = ({ month, year, openTrip, privateTrip, totalOpen, totalPrivate }) => {
+const TemplatePDF = ({ month, year, openTrip, privateTrip, totalOpen, totalPrivate }) => {
   const totalKeseluruhan = totalOpen + totalPrivate;
   const totalTrip = openTrip.length + privateTrip.length;
 
@@ -152,4 +152,4 @@ const DownloadReport = ({ month, year, openTrip, privateTrip, totalOpen, totalPr
   );
 };
 
-export default DownloadReport;
+export default TemplatePDF;
