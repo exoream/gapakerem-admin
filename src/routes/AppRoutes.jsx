@@ -55,7 +55,6 @@ function AppRoutes() {
                     </Routes>
                 </div>
             </div>
-
         </>
     );
 }
