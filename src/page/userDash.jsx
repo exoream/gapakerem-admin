@@ -12,7 +12,11 @@ const UserDash = () => {
   const [users, setUsers] = useState([]);
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');
-  const [currentPage, setCurrentPage] = useState(1);
+  const [pagination, setPagination] = useState({
+    current_page: 1,
+    last_page: 1,
+    total_data: 0,
+  });
 
   const itemsPerPage = 8;
   const navigate = useNavigate();
@@ -23,9 +27,19 @@ const UserDash = () => {
       try {
         const token = Cookies.get('token');
         const response = await axios.get('https://gapakerem.vercel.app/users', {
-          headers: { Authorization: `Bearer ${token}` }
+          headers: { Authorization: `Bearer ${token}` },
+          params: {
+            page: pagination.current_page,
+            limit: itemsPerPage,
+          }
         });
+
         setUsers(response.data.data.users);
+        setPagination({
+          current_page: response.data.pagination.current_page,
+          last_page: response.data.pagination.last_page,
+          total_data: response.data.pagination.total_data,
+        });
       } catch (error) {
         console.error("Error Response:", error.response);
         toast.error(error.response.data.message, {
@@ -39,17 +53,18 @@ const UserDash = () => {
     };
 
     fetchData();
-  }, []);
+  }, [pagination.current_page]);
 
   const filteredUsers = users.filter((user) =>
     user.name.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
-  const totalPages = Math.ceil(filteredUsers.length / itemsPerPage);
-  const startIndex = (currentPage - 1) * itemsPerPage;
-  const currentData = filteredUsers.slice(startIndex, startIndex + itemsPerPage);
-
-  const handlePageChange = (page) => setCurrentPage(page);
+  const handlePageChange = (page) => {
+    setPagination((prev) => ({
+      ...prev,
+      current_page: page,
+    }));
+  };
 
   const handleViewUser = (id) => {
     navigate(`/user/${id}`);
@@ -70,7 +85,10 @@ const UserDash = () => {
               value={searchTerm}
               onChange={(e) => {
                 setSearchTerm(e.target.value);
-                setCurrentPage(1);
+                setPagination((prev) => ({
+                  ...prev,
+                  current_page: 1,
+                }));
               }}
             />
             <FaSearch className="absolute left-3 top-3 text-gray-400" />
@@ -89,15 +107,13 @@ const UserDash = () => {
               </tr>
             </thead>
             <tbody>
-              {currentData.length > 0 ? (
-                currentData.map((user, index) => (
+              {filteredUsers.length > 0 ? (
+                filteredUsers.map((user, index) => (
                   <tr
                     key={user.id}
                     className={`border-b hover:bg-yellow-50 transition-colors ${index % 2 === 0 ? "bg-white" : "bg-gray-50"}`}
                   >
-                    <td className="py-4 px-6 text-gray-800">
-                      {(currentPage - 1) * itemsPerPage + index + 1}
-                    </td>
+                    <td className="py-4 px-6 text-gray-800">{(pagination.current_page - 1) * itemsPerPage + index + 1}</td>
                     <td className="py-4 px-6 text-gray-800">{user.name}</td>
                     <td className="py-4 px-6 text-gray-600">{user.number}</td>
                     <td className="py-4 px-6 text-gray-600">{user.email}</td>
@@ -120,22 +136,19 @@ const UserDash = () => {
                 </tr>
               )}
             </tbody>
-
           </table>
         </div>
       </div>
 
-      {totalPages > 1 && (
+      {pagination.last_page > 1 && (
         <Pagination
-          currentPage={currentPage}
-          totalPages={totalPages}
+          currentPage={pagination.current_page}
+          totalPages={pagination.last_page}
           onPageChange={handlePageChange}
         />
       )}
 
-      <ToastContainer
-        className="absolute top-5 right-5"
-      />
+      <ToastContainer className="absolute top-5 right-5" />
     </div>
   );
 };

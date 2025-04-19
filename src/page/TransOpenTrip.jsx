@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import Cookies from 'js-cookie';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faSearch, faEye, faTrash, faFileAlt } from '@fortawesome/free-solid-svg-icons';
+import { faSearch, faEye } from '@fortawesome/free-solid-svg-icons';
 import { useNavigate, useLocation } from 'react-router-dom';
 import Pagination from '../components/Pagination';
 import Loading from '../components/Loading';
@@ -13,12 +13,15 @@ const TranOpenTrip = () => {
   const [openTripData, setOpenTripData] = useState([]);
   const [searchTerm, setSearchTerm] = useState('');
   const [loading, setLoading] = useState(false);
+  const [pagination, setPagination] = useState({
+    limit: 9,
+    current_page: 1,
+    last_page: 1,
+    total_data: 0
+  });
 
   const navigate = useNavigate();
   const location = useLocation();
-
-  const [currentPage, setCurrentPage] = useState(1);
-  const itemsPerPage = 8;
 
   useEffect(() => {
     const fetchData = async () => {
@@ -32,28 +35,10 @@ const TranOpenTrip = () => {
           },
         });
 
-        const bookings = response.data?.data?.bookings || [];
+        const { bookings, pagination } = response.data?.data || { bookings: [], pagination: {} };
 
-        const updatedBookings = await Promise.all(
-          bookings.map(async (item) => {
-            if (item.payment_proof && item.payment_status === 'unpaid') {
-              try {
-                await updatePaymentStatus(item.id, 'paid', token);
-                return { ...item, payment_status: 'paid' };
-              } catch (error) {
-                console.error("Error Response:", error.response);
-                toast.error(error.response.data.message, {
-                  position: "top-center",
-                  autoClose: 3000,
-                  hideProgressBar: true,
-                });
-              }
-            }
-            return item;
-          })
-        );
-
-        setOpenTripData(updatedBookings);
+        setOpenTripData(bookings);
+        setPagination(pagination);
       } catch (error) {
         console.error("Error Response:", error.response);
         toast.error(error.response.data.message, {
@@ -69,16 +54,6 @@ const TranOpenTrip = () => {
     fetchData();
   }, [location]);
 
-  const updatePaymentStatus = async (id, newStatus, token) => {
-    await axios.patch(
-      `https://gapakerem.vercel.app/bookings/${id}/status`,
-      { payment_status: newStatus },
-      {
-        headers: { Authorization: `Bearer ${token}` },
-      }
-    );
-  };
-
   const handleViewData = (id) => {
     navigate(`/booking/open/${id}`);
   };
@@ -87,12 +62,12 @@ const TranOpenTrip = () => {
     item.participant_name.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
-  const totalPages = Math.ceil(filteredData.length / itemsPerPage);
-  const displayedData = filteredData.slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage);
+  const totalPages = pagination.last_page;
+  const displayedData = filteredData.slice((pagination.current_page - 1) * pagination.limit, pagination.current_page * pagination.limit);
 
   const handlePageChange = (page) => {
     if (page < 1 || page > totalPages) return;
-    setCurrentPage(page);
+    setPagination((prev) => ({ ...prev, current_page: page }));
   };
 
   if (loading) return <Loading />;
@@ -111,7 +86,7 @@ const TranOpenTrip = () => {
                 value={searchTerm}
                 onChange={(e) => {
                   setSearchTerm(e.target.value);
-                  setCurrentPage(1);
+                  setPagination((prev) => ({ ...prev, current_page: 1 }));
                 }}
                 disabled={loading}
               />
@@ -139,7 +114,7 @@ const TranOpenTrip = () => {
                       className={`border-b hover:bg-yellow-50 transition-colors ${index % 2 === 0 ? "bg-white" : "bg-gray-50"}`}
                     >
                       <td className="py-4 px-6 text-gray-800">
-                        {(currentPage - 1) * itemsPerPage + index + 1}
+                        {(pagination.current_page - 1) * pagination.limit + index + 1}
                       </td>
                       <td className="py-4 px-6 text-gray-800">{item.participant_name}</td>
                       <td className="py-4 px-6 text-gray-800">{item.phone_number}</td>
@@ -179,8 +154,8 @@ const TranOpenTrip = () => {
           </div>
 
           <Pagination
-            currentPage={currentPage}
-            totalPages={totalPages}
+            currentPage={pagination.current_page}
+            totalPages={pagination.last_page}
             onPageChange={handlePageChange}
           />
 
@@ -190,7 +165,7 @@ const TranOpenTrip = () => {
       <ToastContainer
         className="absolute top-5 right-5"
       />
-    </div >
+    </div>
   );
 };
 

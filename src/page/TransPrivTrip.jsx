@@ -2,18 +2,20 @@ import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import Cookies from 'js-cookie';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faSearch, faEye, faTrash, faFileAlt } from '@fortawesome/free-solid-svg-icons';
+import { faSearch, faEye, faTrash } from '@fortawesome/free-solid-svg-icons';
 import { useNavigate, useLocation, useSearchParams } from 'react-router-dom';
 import Pagination from '../components/Pagination';
 import Loading from '../components/Loading';
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
+
 const ITEMS_PER_PAGE = 8;
 
 const TranPrivTrip = () => {
   const [openTripData, setOpenTripData] = useState([]);
   const [searchTerm, setSearchTerm] = useState('');
   const [loading, setLoading] = useState(false);
+  const [pagination, setPagination] = useState({ current_page: 1, last_page: 1, total_data: 0 });
   const navigate = useNavigate();
   const location = useLocation();
   const [searchParams, setSearchParams] = useSearchParams();
@@ -27,9 +29,13 @@ const TranPrivTrip = () => {
         const token = Cookies.get('token');
         const response = await axios.get('https://gapakerem.vercel.app/bookings/?trip_type=private', {
           headers: { Authorization: `Bearer ${token}` },
+          params: { page: currentPage, search: searchTerm },
         });
 
         const bookings = response.data?.data?.bookings || [];
+        const paginatedData = response.data?.pagination || { current_page: 1, last_page: 1, total_data: 0 };
+
+        setPagination(paginatedData);
 
         const updatedBookings = await Promise.all(
           bookings.map(async (item) => {
@@ -64,7 +70,7 @@ const TranPrivTrip = () => {
     };
 
     fetchData();
-  }, [location]);
+  }, [currentPage]);
 
   if (loading) return <Loading />;
 
@@ -93,9 +99,6 @@ const TranPrivTrip = () => {
     item.participant_name.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
-  const totalPages = Math.ceil(filteredData.length / ITEMS_PER_PAGE);
-  const paginatedData = filteredData.slice((currentPage - 1) * ITEMS_PER_PAGE, currentPage * ITEMS_PER_PAGE);
-
   return (
     <div className="p-10">
       <div className="rounded-xl shadow-lg p-10">
@@ -111,7 +114,7 @@ const TranPrivTrip = () => {
                 value={searchTerm}
                 onChange={(e) => {
                   setSearchTerm(e.target.value);
-                  handlePageChange(1);
+                  setSearchParams({ page: 1 });
                 }}
                 disabled={loading}
               />
@@ -132,14 +135,14 @@ const TranPrivTrip = () => {
                 </tr>
               </thead>
               <tbody>
-                {paginatedData.length > 0 ? (
-                  paginatedData.map((item, index) => (
+                {filteredData.length > 0 ? (
+                  filteredData.map((item, index) => (
                     <tr
                       key={item.id}
                       className={`border-b hover:bg-yellow-50 transition-colors ${index % 2 === 0 ? "bg-white" : "bg-gray-50"}`}
                     >
                       <td className="py-4 px-6 text-gray-800">
-                        {(currentPage - 1) * itemsPerPage + index + 1}
+                        {(currentPage - 1) * ITEMS_PER_PAGE + index + 1}
                       </td>
                       <td className="py-4 px-6 text-gray-800">{item.participant_name}</td>
                       <td className="py-4 px-6 text-gray-800">{item.phone_number}</td>
@@ -173,7 +176,6 @@ const TranPrivTrip = () => {
                           >
                             <FontAwesomeIcon icon={faTrash} />
                           </button>
-
                         </div>
                       </td>
                     </tr>
@@ -187,10 +189,10 @@ const TranPrivTrip = () => {
             </table>
           </div>
 
-          {totalPages > 1 && (
+          {pagination.last_page > 1 && (
             <Pagination
-              currentPage={currentPage}
-              totalPages={totalPages}
+              currentPage={pagination.current_page}
+              totalPages={pagination.last_page}
               onPageChange={handlePageChange}
             />
           )}
