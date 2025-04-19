@@ -197,7 +197,7 @@ const Dashboard = () => {
 
         {/* Transactions Status */}
         <div className="bg-white rounded-lg shadow-md p-6">
-          <h2 className="text-xl font-semibold mb-6 text-gray-800 border-b pb-3">Payment Status</h2>
+          <h2 className="text-xl font-semibold mb-6 text-gray-800 border-b pb-3">Status Pembayaran</h2>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
             <div className="bg-red-50 p-5 rounded-lg group hover:shadow-md transition">
               <div className="flex items-center justify-between">
@@ -221,7 +221,7 @@ const Dashboard = () => {
               </div>
               <div className="mt-4 text-3xl font-bold text-green-600">
                 {data.total_paid}
-                <span className="text-sm font-normal text-gray-500 ml-1">partisipan</span>
+                <span className="text-sm font-normal text-gray-500 ml-1">Partisipan</span>
               </div>
             </div>
 

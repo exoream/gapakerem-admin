@@ -56,11 +56,11 @@ const DetailPrivateTransaksi = () => {
         }
       );
 
-      setData((prev) => ({
-        ...prev,
-        payment_status: newStatus,
-      }));
-      alert(`Status berhasil diubah menjadi ${newStatus === 'approved' ? 'Diterima' : 'Ditolak'}`);
+      toast.success(response.data.message, {
+        position: "top-center",
+        autoClose: 3000,
+        hideProgressBar: true,
+      });
 
     } catch (error) {
       console.error("Error Response:", error.response);
@@ -71,6 +71,7 @@ const DetailPrivateTransaksi = () => {
       });
     } finally {
       setUpdating(false);
+      window.location.reload();
     }
   };
 

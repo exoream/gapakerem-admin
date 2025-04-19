@@ -17,7 +17,7 @@ const getMonthName = (value) => {
   return months[parseInt(value, 10) - 1];
 };
 
-const DownloadReport = ({ month, year, openTrip, privateTrip, totalOpen, totalPrivate }) => {
+const TemplatePDF = ({ month, year, openTrip, privateTrip, totalOpen, totalPrivate }) => {
   const totalKeseluruhan = totalOpen + totalPrivate;
   const totalTrip = openTrip.length + privateTrip.length;
 
@@ -142,8 +142,7 @@ const DownloadReport = ({ month, year, openTrip, privateTrip, totalOpen, totalPr
           <div className="flex justify-end">
             <div className="text-right w-64">
               <p>Makassar, {tanggal}</p>
-              <div className="mt-10 mb-1 border-b border-gray-400 w-full"></div>
-              <p className="font-bold">GaPakeRem Adventure</p>
+              <p className="mt-20 font-bold">GaPakeRem Adventure</p>
             </div>
           </div>
         </div>
@@ -152,4 +151,4 @@ const DownloadReport = ({ month, year, openTrip, privateTrip, totalOpen, totalPr
   );
 };
 
-export default DownloadReport;
+export default TemplatePDF;

@@ -153,38 +153,61 @@ const EditOpenTrip = () => {
 
     const token = Cookies.get("token");
     const formDataToSend = new FormData();
-    formDataToSend.append("mountain_name", formData.mountain_name);
+
+    if (formData.mountain_name?.trim()) {
+      formDataToSend.append("mountain_name", formData.mountain_name);
+    }
+
     if (formData.mountain_photo) {
       formDataToSend.append("mountain_photo", formData.mountain_photo);
     }
 
-    formDataToSend.append("description", formData.description);
-    formDataToSend.append("equipment", formData.equipment);
-    formDataToSend.append("estimation_time", formData.estimation_time);
-    formDataToSend.append("price", Number(formData.price));
+    if (formData.description?.trim()) {
+      formDataToSend.append("description", formData.description);
+    }
+
+    if (formData.equipment?.trim()) {
+      formDataToSend.append("equipment", formData.equipment);
+    }
+
+    if (formData.estimation_time?.trim()) {
+      formDataToSend.append("estimation_time", formData.estimation_time);
+    }
+
+    if (formData.price !== '' && !isNaN(formData.price)) {
+      formDataToSend.append("price", Number(formData.price));
+    }
+
     formDataToSend.append("trip_type", "open");
 
-    const openTripData = {
-      traveling_time: String(formData.traveling_time),
-      agenda: String(formData.agenda),
-      id_guide: Number(formData.id_guide),
-      porters: formData.porter_ids
-        .map((id) => Number(id))
-        .filter((id) => !isNaN(id)),
+    const openTripData = {};
+    if (String(formData.traveling_time).trim()) {
+      openTripData.traveling_time = String(formData.traveling_time);
+    }
 
-    };
-    formDataToSend.append("open_trip", JSON.stringify(openTripData));
+    if (formData.agenda?.trim()) {
+      openTripData.agenda = String(formData.agenda);
+    }
+
+    if (formData.id_guide !== '' && !isNaN(formData.id_guide)) {
+      openTripData.id_guide = Number(formData.id_guide);
+    }
+
+    const porters = formData.porter_ids
+      .map((id) => Number(id))
+      .filter((id) => !isNaN(id));
+    if (porters.length > 0) {
+      openTripData.porters = porters;
+    }
+
+    if (Object.keys(openTripData).length > 0) {
+      formDataToSend.append("open_trip", JSON.stringify(openTripData));
+    }
 
     try {
       for (let pair of formDataToSend.entries()) {
-        console.log(`${pair[0]}:`, pair[1], typeof pair[1]);
+        console.log(`${pair[0]}:`, pair[1]);
       }
-      console.log("FormData sebelum kirim:", {
-        id_guide: formData.id_guide,
-        porter_ids: formData.porter_ids,
-        traveling_time: formData.traveling_time,
-        agenda: formData.agenda,
-      });
 
       const res = await axios.put(
         `https://gapakerem.vercel.app/trips/open/${id}`,
@@ -196,6 +219,7 @@ const EditOpenTrip = () => {
           },
         }
       );
+
       toast.success(res.data.message, {
         position: "top-center",
         autoClose: 3000,
@@ -204,7 +228,7 @@ const EditOpenTrip = () => {
       navigate("/opentrip");
     } catch (error) {
       console.error("Error :", error.response);
-      toast.error(error.response.data.message, {
+      toast.error(error.response?.data?.message || "Terjadi kesalahan", {
         position: "top-center",
         autoClose: 3000,
         hideProgressBar: true,
@@ -213,6 +237,7 @@ const EditOpenTrip = () => {
       setLoadingUpload(false);
     }
   };
+
 
   if (loading) return <Loading2 />;
 

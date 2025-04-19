@@ -131,45 +131,73 @@ const GuidePorter = () => {
   };
 
   const handleEditGuide = async (updatedGuide) => {
-    setLoadingUpload(true)
+    setLoadingUpload(true);
 
     try {
       const formData = new FormData();
-      formData.append('name', updatedGuide.name);
-      if (image && image !== updatedGuide.photo) {
-        const file = dataURLtoFile(image, 'photo.png');
-        formData.append('photo', file);
+      let hasChange = false;
+
+      if (updatedGuide.name && updatedGuide.name.trim() !== "") {
+        formData.append('name', updatedGuide.name.trim());
+        hasChange = true;
       }
 
-      const response = await axios.put(`https://gapakerem.vercel.app/guides/${updatedGuide.id}`, formData, {
-        headers: {
-          'Authorization': `Bearer ${Cookies.get('token')}`,
-          'Content-Type': 'multipart/form-data',
-        },
-      });
+      if (image && image !== updatedGuide.photo) {
+        try {
+          const file = dataURLtoFile(image, 'photo.png');
+          formData.append('photo', file);
+          hasChange = true;
+        } catch (imageError) {
+          console.error("Image processing error:", imageError);
+        }
+      }
+
+      if (!hasChange) {
+        toast.info("Tidak ada perubahan untuk disimpan.", {
+          position: 'top-center',
+          autoClose: 3000,
+          hideProgressBar: true,
+        });
+        setLoadingUpload(false);
+        return;
+      }
+
+      const response = await axios.put(
+        `https://gapakerem.vercel.app/guides/${updatedGuide.id}`,
+        formData,
+        {
+          headers: {
+            'Authorization': `Bearer ${Cookies.get('token')}`,
+            'Content-Type': 'multipart/form-data',
+          },
+        }
+      );
 
       setGuides((prevGuides) =>
-        prevGuides.map((guide) => (guide.id === response.data.data.id ? response.data.data : guide))
+        prevGuides.map((guide) =>
+          guide.id === response.data.data.id ? response.data.data : guide
+        )
       );
 
       toast.success(response.data.message, {
-        position: "top-center",
+        position: 'top-center',
         autoClose: 3000,
         hideProgressBar: true,
       });
 
     } catch (error) {
-      console.error("Error Response:", error.response);
-      toast.error(error.response.data.message, {
-        position: "top-center",
+      console.error('Error Response:', error.response);
+      toast.error(error.response?.data?.message || 'Terjadi kesalahan.', {
+        position: 'top-center',
         autoClose: 3000,
         hideProgressBar: true,
       });
     } finally {
       closePopup();
-      setLoadingUpload(false)
+      setLoadingUpload(false);
     }
   };
+
 
   const handleAddPorter = async (newPorter) => {
     setLoadingUpload(true)
@@ -211,25 +239,51 @@ const GuidePorter = () => {
   };
 
   const handleEditPorter = async (updatedPorter) => {
-    setLoadingUpload(true)
+    setLoadingUpload(true);
 
     try {
       const formData = new FormData();
-      formData.append('name', updatedPorter.name);
-      if (image && image !== updatedPorter.photo) {
-        const file = dataURLtoFile(image, 'photo.png');
-        formData.append('photo', file);
+
+      const trimmedName = updatedPorter.name?.trim();
+      const isNameChanged = trimmedName && trimmedName !== currentPorter.name;
+      const isPhotoChanged = image && image !== currentPorter.photo;
+
+      if (!isNameChanged && !isPhotoChanged) {
+        toast.info("Tidak ada perubahan yang dikirim.");
+        setLoadingUpload(false);
+        return;
       }
 
-      const response = await axios.put(`https://gapakerem.vercel.app/porters/${updatedPorter.id}`, formData, {
-        headers: {
-          'Authorization': `Bearer ${Cookies.get('token')}`,
-          'Content-Type': 'multipart/form-data',
-        },
-      });
+      if (isNameChanged) {
+        formData.append("name", trimmedName);
+      }
+
+      if (isPhotoChanged) {
+        try {
+          const file = dataURLtoFile(image, "photo.png");
+          formData.append("photo", file);
+        } catch (e) {
+          toast.error("Gagal memproses foto.");
+          setLoadingUpload(false);
+          return;
+        }
+      }
+
+      const response = await axios.put(
+        `https://gapakerem.vercel.app/porters/${updatedPorter.id}`,
+        formData,
+        {
+          headers: {
+            Authorization: `Bearer ${Cookies.get("token")}`,
+            "Content-Type": "multipart/form-data",
+          },
+        }
+      );
 
       setPorters((prevPorters) =>
-        prevPorters.map((porter) => (porter.id === response.data.data.id ? response.data.data : porter))
+        prevPorters.map((porter) =>
+          porter.id === response.data.data.id ? response.data.data : porter
+        )
       );
 
       toast.success(response.data.message, {
@@ -237,17 +291,17 @@ const GuidePorter = () => {
         autoClose: 3000,
         hideProgressBar: true,
       });
-
     } catch (error) {
-      console.error("Error Response:", error.response);
-      toast.error(error.response.data.message, {
+      console.error("Full error:", error);
+      const errorMessage = error.response?.data?.message || "Terjadi kesalahan.";
+      toast.error(errorMessage, {
         position: "top-center",
         autoClose: 3000,
         hideProgressBar: true,
       });
     } finally {
       closePopup();
-      setLoadingUpload(false)
+      setLoadingUpload(false);
     }
   };
 
@@ -502,6 +556,7 @@ const GuidePorter = () => {
                 <label className="font-medium">Nama</label>
                 <input
                   id="name"
+                  name='name'
                   type="text"
                   defaultValue={currentGuide ? currentGuide.name : currentPorter.name}
                   autoComplete="off"
@@ -513,7 +568,7 @@ const GuidePorter = () => {
                 <label className="block font-medium mb-4" htmlFor="photo">Foto</label>
                 <div className="flex items-center">
                   <div className="w-24 h-24 border rounded-lg flex items-center justify-center">
-                    <img src={image || (currentGuide ? currentGuide.photo : currentPorter.photo)} alt="Current image" className="rounded-lg" />
+                    <img src={image || (currentGuide ? currentGuide.photo : currentPorter.photo)} alt="Current image" className="rounded-lg w-24 h-24" />
                   </div>
                   <div className="ml-4 text-gray-500 text-sm">
                     <p>Format jpg, jpeg, png</p>
@@ -524,6 +579,7 @@ const GuidePorter = () => {
 
               <input
                 type="file"
+                name='photo'
                 accept="image/*"
                 onChange={handleImageUpload}
                 className="w-full border border-gray-300 py-2 px-6 rounded-full"
@@ -573,7 +629,7 @@ const GuidePorter = () => {
                 <label className="block font-medium mb-4" htmlFor="photo">Foto</label>
                 <div className="flex items-center">
                   <div className="w-24 h-24 border rounded-lg flex items-center justify-center">
-                    <img src={image || "https://placehold.co/100"} alt="Placeholder image for uploading a photo" className="rounded-lg" />
+                    <img src={image || "https://placehold.co/100"} alt="Placeholder image for uploading a photo" className="rounded-lg w-24 h-24" />
                   </div>
                   <div className="ml-4 text-gray-500 text-sm">
                     <p>Format jpg, jpeg, png</p>
