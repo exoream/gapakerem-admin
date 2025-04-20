@@ -252,7 +252,7 @@ const AddOpenTrip = () => {
           </div>
 
           <div className="mt-10 grid grid-cols-3 items-center">
-            <label className="font-medium">porter</label>
+            <label className="font-medium">Porter</label>
             <div className="flex gap-4 justify-start items-center gap-5">
               {porters.map((porter) => (
                 <div key={porter.id} className="flex items-center gap-2">

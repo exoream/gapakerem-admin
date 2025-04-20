@@ -7,7 +7,6 @@ import 'react-toastify/dist/ReactToastify.css';
 import Loading from "../components/Loading2";
 import Loading2 from "../components/Loading";
 
-
 const EditOpenTrip = () => {
   const { id } = useParams();
   const navigate = useNavigate();
@@ -28,7 +27,6 @@ const EditOpenTrip = () => {
     id_guide: "",
     porter_ids: [],
   });
-
 
   const [guides, setGuides] = useState([]);
   const [porters, setPorters] = useState([]);
@@ -75,11 +73,6 @@ const EditOpenTrip = () => {
       console.log("Trip Detail API Response:", res.data);
 
       const trip = res.data.data;
-
-      if (trip.trip_type !== "open") {
-        console.error("Trip ini bukan tipe open_trip!");
-        return;
-      }
 
       setFormData({
         mountain_name: trip.mountain_name || "",
@@ -237,7 +230,6 @@ const EditOpenTrip = () => {
       setLoadingUpload(false);
     }
   };
-
 
   if (loading) return <Loading2 />;
 

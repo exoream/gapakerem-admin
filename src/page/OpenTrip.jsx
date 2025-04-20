@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from 'react';
+import axios from 'axios';
 import { FaSearch, FaPen, FaTrash, FaPlus, FaEye } from 'react-icons/fa';
 import { useNavigate } from 'react-router-dom';
 import Cookies from 'js-cookie';
@@ -21,22 +22,23 @@ const OpenTrip = () => {
   const fetchTrips = async (page = 1, term = '') => {
     setLoading(true);
     try {
-      const response = await fetch(
-        `https://gapakerem.vercel.app/trips/open?page=${page}&limit=8&search=${term}`
-      );
+      const response = await axios.get('https://gapakerem.vercel.app/trips/open', {
+        params: {
+          page: page,
+          search: term,
+        },
+      });
 
-      const data = await response.json();
-      setTrips(data.data.trips);
-      setPagination(data.data.pagination);
+      setTrips(response.data.data.trips);
+      setPagination(response.data.data.pagination);
 
     } catch (error) {
       console.error("Error Response:", error.response);
-      toast.error(error.response.data.message, {
+      toast.error(error.response?.data?.message || "Gagal memuat data", {
         position: "top-center",
         autoClose: 3000,
         hideProgressBar: true,
       });
-
     } finally {
       setLoading(false);
     }
@@ -45,13 +47,6 @@ const OpenTrip = () => {
   useEffect(() => {
     fetchTrips();
   }, []);
-
-  useEffect(() => {
-    const delayDebounce = setTimeout(() => {
-      fetchTrips(1, searchTerm);
-    }, 400);
-    return () => clearTimeout(delayDebounce);
-  }, [searchTerm]);
 
   const handlePageChange = (page) => {
     if (page < 1 || page > pagination.last_page) return;
@@ -65,24 +60,26 @@ const OpenTrip = () => {
     try {
       const token = Cookies.get('token');
 
-      const response = await fetch(`https://gapakerem.vercel.app/trips/${tripId}`, {
-        method: 'DELETE',
-        headers: {
-          'Authorization': `Bearer ${token}`,
-          'Content-Type': 'application/json',
-        },
-      });
+      const response = await axios.delete(
+        `https://gapakerem.vercel.app/trips/${tripId}`,
+        {
+          headers: {
+            'Authorization': `Bearer ${token}`,
+            'Content-Type': 'application/json',
+          },
+        }
+      );
 
       fetchTrips(pagination.current_page, searchTerm);
 
-      toast.success("Berhasil hapus trip", {
+      toast.success(response.data.message, {
         position: "top-center",
         autoClose: 3000,
         hideProgressBar: true,
       });
 
     } catch (error) {
-      console.error("Error Response:", error.response);
+      console.error("Error :", error.response);
       toast.error(error.response.data.message, {
         position: "top-center",
         autoClose: 3000,
@@ -120,6 +117,11 @@ const OpenTrip = () => {
                 className="w-full border border-gray-300 rounded-full py-2 px-4 pl-10 focus:outline-none focus:ring-2 focus:ring-[#FFC100] focus:border-[#FFC100] transition-all"
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter') {
+                    fetchTrips(1, searchTerm);
+                  }
+                }}
               />
               <FaSearch className="absolute left-3 top-3 text-gray-400" />
             </div>

@@ -22,7 +22,8 @@ const months = [
   { value: '12', label: 'Desember' },
 ];
 
-const years = ['2023', '2024', '2025'];
+const currentYear = new Date().getFullYear();
+const years = [currentYear - 1, currentYear, currentYear + 1].map(String);
 
 const formatCurrency = (num) => {
   return 'Rp ' + num.toString().replace(/\B(?=(\d{3})+(?!\d))/g, '.');
@@ -76,10 +77,22 @@ const LaporanTrip = () => {
   }, [selectedMonth, selectedYear]);
 
   const handleDownload = () => {
-    const printUrl = `/print-report?month=${selectedMonth}&year=${selectedYear}`;
+    const isOpenTripEmpty = openTripData.length === 0;
+    const isPrivateTripEmpty = privateTripData.length === 0;
 
+    if (isOpenTripEmpty && isPrivateTripEmpty) {
+      toast.warning("Data tidak tersedia untuk bulan dan tahun yang dipilih.", {
+        position: "top-center",
+        autoClose: 3000,
+        hideProgressBar: true,
+      });
+      return;
+    }
+
+    const printUrl = `/print-report?month=${selectedMonth}&year=${selectedYear}`;
     window.open(printUrl, '_blank');
   };
+
 
   if (loading) return <Loading />;
 
@@ -124,16 +137,21 @@ const LaporanTrip = () => {
                   </tr>
                 </thead>
                 <tbody>
-                  {openTripData.map((trip, i) => (
-                    <tr
-                      key={i}
-                      className={`border-b hover:bg-yellow-50 transition-colors`}
-                    >
-                      <td className="py-4 px-6 text-gray-800">{trip.mountain_name}</td>
-                      <td className="py-4 px-6 text-gray-800">{trip.total_participants}</td>
-                      <td className="py-4 px-6 text-gray-800">{formatCurrency(trip.total_price)}</td>
+                  {openTripData.length === 0 ? (
+                    <tr>
+                      <td colSpan={3} className="text-center py-6 text-gray-500">
+                        Tidak ada data open trip.
+                      </td>
                     </tr>
-                  ))}
+                  ) : (
+                    openTripData.map((trip, i) => (
+                      <tr key={i} className="border-b hover:bg-yellow-50 transition-colors">
+                        <td className="py-4 px-6 text-gray-800">{trip.mountain_name}</td>
+                        <td className="py-4 px-6 text-gray-800">{trip.total_participants}</td>
+                        <td className="py-4 px-6 text-gray-800">{formatCurrency(trip.total_price)}</td>
+                      </tr>
+                    ))
+                  )}
                 </tbody>
               </table>
             </div>
@@ -151,16 +169,21 @@ const LaporanTrip = () => {
                   </tr>
                 </thead>
                 <tbody>
-                  {privateTripData.map((trip, i) => (
-                    <tr
-                      key={i}
-                      className={`border-b hover:bg-yellow-50 transition-colors`}
-                    >
-                      <td className="py-4 px-6 text-gray-800">{trip.mountain_name}</td>
-                      <td className="py-4 px-6 text-gray-800">{trip.total_participants}</td>
-                      <td className="py-4 px-6 text-gray-800">{formatCurrency(trip.total_price)}</td>
+                  {privateTripData.length === 0 ? (
+                    <tr>
+                      <td colSpan={3} className="text-center py-6 text-gray-500">
+                        Tidak ada data private trip.
+                      </td>
                     </tr>
-                  ))}
+                  ) : (
+                    privateTripData.map((trip, i) => (
+                      <tr key={i} className="border-b hover:bg-yellow-50 transition-colors">
+                        <td className="py-4 px-6 text-gray-800">{trip.mountain_name}</td>
+                        <td className="py-4 px-6 text-gray-800">{trip.total_participants}</td>
+                        <td className="py-4 px-6 text-gray-800">{formatCurrency(trip.total_price)}</td>
+                      </tr>
+                    ))
+                  )}
                 </tbody>
               </table>
             </div>

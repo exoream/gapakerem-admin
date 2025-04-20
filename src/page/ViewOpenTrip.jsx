@@ -18,7 +18,7 @@ const ViewOpenTrip = () => {
       try {
         const res = await axios.get(`https://gapakerem.vercel.app/trips/${id}`);
         setTrip(res.data.data);
-      } catch (err) {
+      } catch (error) {
         console.error("Error Response:", error.response);
         toast.error(error.response.data.message, {
           position: "top-center",
