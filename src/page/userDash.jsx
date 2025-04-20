@@ -10,60 +10,53 @@ import 'react-toastify/dist/ReactToastify.css';
 
 const UserDash = () => {
   const [users, setUsers] = useState([]);
-  const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');
+  const [loading, setLoading] = useState(true);
   const [pagination, setPagination] = useState({
     current_page: 1,
     last_page: 1,
     total_data: 0,
   });
-
-  const itemsPerPage = 8;
   const navigate = useNavigate();
 
+  const fetchUsers = async (page = 1, term = '') => {
+    setLoading(true);
+    try {
+      const token = Cookies.get('token');
+
+      const response = await axios.get('https://gapakerem.vercel.app/users', {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+        params: {
+          page: page,
+          search: term,
+        }
+      });
+
+      const data = response.data.data;
+      setUsers(data.users);
+      setPagination(data.pagination);
+
+    } catch (error) {
+      console.error("Error :", error);
+      toast.error(error.response.data.message, {
+        position: "top-center",
+        autoClose: 3000,
+        hideProgressBar: true,
+      });
+    } finally {
+      setLoading(false);
+    }
+  };
+
   useEffect(() => {
-    const fetchData = async () => {
-      setLoading(true);
-      try {
-        const token = Cookies.get('token');
-        const response = await axios.get('https://gapakerem.vercel.app/users', {
-          headers: { Authorization: `Bearer ${token}` },
-          params: {
-            page: pagination.current_page,
-            limit: itemsPerPage,
-          }
-        });
-
-        setUsers(response.data.data.users);
-        setPagination({
-          current_page: response.data.pagination.current_page,
-          last_page: response.data.pagination.last_page,
-          total_data: response.data.pagination.total_data,
-        });
-      } catch (error) {
-        console.error("Error Response:", error.response);
-        toast.error(error.response.data.message, {
-          position: "top-center",
-          autoClose: 3000,
-          hideProgressBar: true,
-        });
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchData();
-  }, [pagination.current_page]);
-
-  const filteredUsers = users.filter((user) =>
-    user.name.toLowerCase().includes(searchTerm.toLowerCase())
-  );
+    fetchUsers();
+  }, []);
 
   const handlePageChange = (page) => {
-    setPagination((prev) => ({
-      ...prev,
-      current_page: page,
-    }));
+    if (page < 1 || page > pagination.last_page) return;
+    fetchTransaction(page, searchTerm);
   };
 
   const handleViewUser = (id) => {
@@ -82,13 +75,11 @@ const UserDash = () => {
               type="text"
               placeholder="Cari pengguna..."
               className="w-full border border-gray-300 rounded-full py-2 px-4 pl-10 focus:outline-none focus:ring-2 focus:ring-[#FFC100] focus:border-[#FFC100] transition-all"
-              value={searchTerm}
-              onChange={(e) => {
-                setSearchTerm(e.target.value);
-                setPagination((prev) => ({
-                  ...prev,
-                  current_page: 1,
-                }));
+              onChange={(e) => setSearchTerm(e.target.value)}
+              onKeyDown={(e) => {
+                if (e.key === 'Enter') {
+                  fetchTransaction(1, searchTerm);
+                }
               }}
             />
             <FaSearch className="absolute left-3 top-3 text-gray-400" />
@@ -107,20 +98,22 @@ const UserDash = () => {
               </tr>
             </thead>
             <tbody>
-              {filteredUsers.length > 0 ? (
-                filteredUsers.map((user, index) => (
+              {users.length > 0 ? (
+                users.map((user, index) => (
                   <tr
                     key={user.id}
                     className={`border-b hover:bg-yellow-50 transition-colors ${index % 2 === 0 ? "bg-white" : "bg-gray-50"}`}
                   >
-                    <td className="py-4 px-6 text-gray-800">{(pagination.current_page - 1) * itemsPerPage + index + 1}</td>
+                    <td className="py-4 px-6 text-gray-800">
+                      {(pagination.current_page - 1) * pagination.limit + index + 1}
+                    </td>
                     <td className="py-4 px-6 text-gray-800">{user.name}</td>
                     <td className="py-4 px-6 text-gray-600">{user.number}</td>
                     <td className="py-4 px-6 text-gray-600">{user.email}</td>
                     <td className="py-4 px-6">
                       <div className="flex justify-center">
                         <button
-                          onClick={() => handleViewUser(user.id)}
+                          onClick={() => navigate(`/user/${user.id}`)}
                           className="bg-yellow-400 hover:bg-yellow-500 text-white p-2 rounded-full transition-all transform hover:scale-110"
                           aria-label={`View user ${user.name}`}
                         >
@@ -138,15 +131,13 @@ const UserDash = () => {
             </tbody>
           </table>
         </div>
-      </div>
 
-      {pagination.last_page > 1 && (
         <Pagination
           currentPage={pagination.current_page}
           totalPages={pagination.last_page}
           onPageChange={handlePageChange}
         />
-      )}
+      </div>
 
       <ToastContainer className="absolute top-5 right-5" />
     </div>

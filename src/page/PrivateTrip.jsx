@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from 'react';
+import axios from 'axios';
 import { FaSearch, FaTrash, FaPlus, FaEye } from 'react-icons/fa';
 import { useNavigate } from 'react-router-dom';
 import Cookies from 'js-cookie';
@@ -10,37 +11,42 @@ import 'react-toastify/dist/ReactToastify.css';
 const PrivateTrip = () => {
   const [trips, setTrips] = useState([]);
   const [searchTerm, setSearchTerm] = useState('');
-  const [currentPage, setCurrentPage] = useState(1);
-  const tripsPerPage = 8;
   const [loading, setLoading] = useState(true);
-
+  const [pagination, setPagination] = useState({
+    current_page: 1,
+    last_page: 1,
+    total_data: 0,
+  });
   const navigate = useNavigate();
 
-  useEffect(() => {
-    fetchTrips();
-  }, []);
-
-  const fetchTrips = async () => {
+  const fetchTrips = async (page = 1, term = '') => {
     setLoading(true);
     try {
-      const response = await fetch('https://gapakerem.vercel.app/trips/private');
-      const data = await response.json();
-      setTrips(data.data.trips);
+      const response = await axios.get('https://gapakerem.vercel.app/trips/private', {
+        params: {
+          page: page,
+          search: term,
+        },
+      });
+
+      setTrips(response.data.data.trips);
+      setPagination(response.data.data.pagination);
 
     } catch (error) {
-      console.error("Error Response:", error.response);
+      console.error("Error Response:", error);
       toast.error(error.response.data.message, {
         position: "top-center",
         autoClose: 3000,
         hideProgressBar: true,
       });
-
     } finally {
       setLoading(false);
     }
   };
 
-  if (loading) return <Loading />;
+  useEffect(() => {
+    fetchTrips();
+  }, []);
 
   const handleDelete = async (tripId) => {
     const confirmed = window.confirm('Apakah Anda yakin ingin menghapus trip ini?');
@@ -48,25 +54,24 @@ const PrivateTrip = () => {
 
     try {
       const token = Cookies.get('token');
-      if (!token) throw new Error('Token tidak ditemukan');
 
-      const response = await fetch(`https://gapakerem.vercel.app/trips/${tripId}`, {
-        method: 'DELETE',
+      const response = await axios.delete(`https://gapakerem.vercel.app/trips/${tripId}`, {
         headers: {
           'Authorization': `Bearer ${token}`,
           'Content-Type': 'application/json',
         },
       });
 
-      setTrips(trips.filter((trip) => trip.id !== tripId));
       toast.success(response.data.message, {
         position: "top-center",
         autoClose: 3000,
         hideProgressBar: true,
       });
 
+      fetchTrips(currentPage, searchTerm);
+
     } catch (error) {
-      console.error("Error Response:", error.response);
+      console.error("Error Response:", error);
       toast.error(error.response.data.message, {
         position: "top-center",
         autoClose: 3000,
@@ -75,14 +80,12 @@ const PrivateTrip = () => {
     }
   };
 
-  const filteredTrips = trips.filter((trip) =>
-    trip.mountain_name?.toLowerCase().includes(searchTerm.toLowerCase())
-  );
+  const handlePageChange = (page) => {
+    if (page < 1 || page > pagination.last_page) return;
+    fetchTrips(page, searchTerm);
+  };
 
-  const indexOfLastTrip = currentPage * tripsPerPage;
-  const indexOfFirstTrip = indexOfLastTrip - tripsPerPage;
-  const currentTrips = filteredTrips.slice(indexOfFirstTrip, indexOfLastTrip);
-  const totalPages = Math.ceil(filteredTrips.length / tripsPerPage);
+  if (loading) return <Loading />;
 
   return (
     <div className="p-10">
@@ -102,9 +105,11 @@ const PrivateTrip = () => {
                 placeholder="Cari private trip..."
                 className="w-full border border-gray-300 rounded-full py-2 px-4 pl-10 focus:outline-none focus:ring-2 focus:ring-[#FFC100] focus:border-[#FFC100] transition-all"
                 value={searchTerm}
-                onChange={(e) => {
-                  setSearchTerm(e.target.value);
-                  setCurrentPage(1);
+                onChange={(e) => setSearchTerm(e.target.value)}
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter') {
+                    fetchTrips(1, searchTerm);
+                  }
                 }}
               />
               <FaSearch className="absolute left-3 top-3 text-gray-400" />
@@ -123,14 +128,14 @@ const PrivateTrip = () => {
               </tr>
             </thead>
             <tbody>
-              {currentTrips.length > 0 ? (
-                currentTrips.map((trip, index) => (
+              {trips.length > 0 ? (
+                trips.map((trip, index) => (
                   <tr
                     key={trip.id}
                     className={`border-b hover:bg-yellow-50 transition-colors ${index % 2 === 0 ? "bg-white" : "bg-gray-50"}`}
                   >
                     <td className="py-4 px-6 text-gray-800">
-                      {(currentPage - 1) * tripsPerPage + index + 1}
+                      {(pagination.current_page - 1) * pagination.limit + index + 1}
                     </td>
                     <td className="py-4 px-6 text-gray-800">{trip.mountain_name}</td>
                     <td className="py-4 px-6 text-gray-800">Rp {trip.price.toLocaleString()}</td>
@@ -154,25 +159,21 @@ const PrivateTrip = () => {
                 ))
               ) : (
                 <tr>
-                  <td colSpan="5" className="text-center py-8 text-gray-500">Tidak ada trip yang ditemukan</td>
+                  <td colSpan="4" className="text-center py-8 text-gray-500">Tidak ada trip yang ditemukan</td>
                 </tr>
               )}
             </tbody>
           </table>
         </div>
+
+        <Pagination
+          currentPage={pagination.current_page}
+          totalPages={pagination.last_page}
+          onPageChange={handlePageChange}
+        />
       </div>
 
-      <ToastContainer
-        className="absolute top-5 right-5"
-      />
-
-      {totalPages > 1 && (
-        <Pagination
-          currentPage={currentPage}
-          totalPages={totalPages}
-          onPageChange={setCurrentPage}
-        />
-      )}
+      <ToastContainer className="absolute top-5 right-5" />
     </div>
   );
 };
