@@ -126,7 +126,9 @@ const AddOpenTrip = () => {
         hideProgressBar: true,
       });
 
-      navigate("/opentrip");
+      setTimeout(() => {
+        navigate("/opentrip");
+      }, 3000);
     } catch (error) {
       console.error("Error :", error.response);
       toast.error(error.response.data.message, {
@@ -214,7 +216,7 @@ const AddOpenTrip = () => {
           <div className="mt-10 grid grid-cols-3 items-center gap-4">
             <label className="font-medium">Waktu Travel</label>
             <input
-              type="time"
+              type="text"
               name="traveling_time"
               value={formData.traveling_time}
               onChange={handleChange}
