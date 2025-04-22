@@ -68,7 +68,7 @@ const PrivateTrip = () => {
         hideProgressBar: true,
       });
 
-      fetchTrips(currentPage, searchTerm);
+      fetchTrips(pagination.current_page, searchTerm);
 
     } catch (error) {
       console.error("Error Response:", error);

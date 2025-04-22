@@ -25,8 +25,13 @@ const DetailPrivateTransaksi = () => {
           headers: { Authorization: `Bearer ${token}` },
         });
 
-        setData(response.data.data);
+        toast.success(response.data.message, {
+          position: "top-center",
+          autoClose: 3000,
+          hideProgressBar: true,
+        });
 
+        window.location.reload();
       } catch (error) {
         console.error("Error Response:", error.response);
         toast.error(error.response.data.message, {

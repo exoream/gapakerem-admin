@@ -123,7 +123,10 @@ const AddPrivTrip = () => {
         autoClose: 3000,
         hideProgressBar: true,
       });
-      navigate("/privatetrip");
+
+      setTimeout(() => {
+        navigate("/privatetrip");
+      }, 3000);
 
     } catch (error) {
       console.error("Error :", error.response);
@@ -140,7 +143,7 @@ const AddPrivTrip = () => {
   return (
     <div className="p-10 flex items-center justify-center">
       <div className="w-2/3 rounded-xl shadow-lg p-10">
-        <h1 className="text-3xl font-bold text-gray-800">Tambah Open Trip</h1>
+        <h1 className="text-3xl font-bold text-gray-800">Tambah Private Trip</h1>
 
         <form onSubmit={handleSubmit} className="space-y-4">
 

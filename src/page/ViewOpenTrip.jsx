@@ -71,7 +71,7 @@ const ViewOpenTrip = () => {
         </div>
 
         <div className="mt-5 grid grid-cols-3 items-center gap-4">
-          <label className="font-medium">Description</label>
+          <label className="font-medium">Deskripsi</label>
           <textarea
             type="text"
             value={trip.description}

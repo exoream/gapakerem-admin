@@ -61,6 +61,10 @@ const DetailOpenTransaksi = () => {
         hideProgressBar: true,
       });
 
+      setTimeout(() => {
+        window.location.reload();
+      }, 3000);
+
     } catch (error) {
       console.error("Error Response:", error.response);
       toast.error(error.response.data.message, {
