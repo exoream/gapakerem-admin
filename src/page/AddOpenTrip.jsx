@@ -214,7 +214,7 @@ const AddOpenTrip = () => {
           </div>
 
           <div className="mt-10 grid grid-cols-3 items-center gap-4">
-            <label className="font-medium">Waktu Travel</label>
+            <label className="font-medium">Jadwal</label>
             <input
               type="text"
               name="traveling_time"

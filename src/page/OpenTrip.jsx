@@ -33,8 +33,8 @@ const OpenTrip = () => {
       setPagination(response.data.data.pagination);
 
     } catch (error) {
-      console.error("Error Response:", error.response);
-      toast.error(error.response?.data?.message || "Gagal memuat data", {
+      console.error("Error Response:", error);
+      toast.error(error.response.data.message, {
         position: "top-center",
         autoClose: 3000,
         hideProgressBar: true,
@@ -70,16 +70,21 @@ const OpenTrip = () => {
         }
       );
 
-      fetchTrips(pagination.current_page, searchTerm);
+      toast.success(
+        response.data.message || "Hapus trip berhasil",
+        {
+          position: "top-center",
+          autoClose: 3000,
+          hideProgressBar: true,
+        }
+      );
 
-      toast.success(response.data.message, {
-        position: "top-center",
-        autoClose: 3000,
-        hideProgressBar: true,
-      });
+      setTimeout(() => {
+        fetchTrips(pagination.current_page, searchTerm);
+      }, 2000);
 
     } catch (error) {
-      console.error("Error :", error.response);
+      console.error("Error :", error);
       toast.error(error.response.data.message, {
         position: "top-center",
         autoClose: 3000,

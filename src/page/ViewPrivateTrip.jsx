@@ -71,7 +71,17 @@ const ViewPrivateTrip = () => {
         </div>
 
         <div className="mt-5 grid grid-cols-3 items-center gap-4">
-          <label className="font-medium">Description</label>
+          <label className="font-medium">Harga Per Hari</label>
+          <input
+            type="text"
+            value={Number(trip.price_per_day).toLocaleString()}
+            readOnly
+            className="col-span-2 border border-gray-300 text-gray-900 text-sm rounded-full focus:outline-none focus:ring-2 focus:ring-[#FFC100] focus:border-transparent w-full p-3"
+          />
+        </div>
+
+        <div className="mt-5 grid grid-cols-3 items-center gap-4">
+          <label className="font-medium">Deskripsi</label>
           <textarea
             type="text"
             value={trip.description}
