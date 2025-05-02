@@ -483,7 +483,7 @@ const GuidePorter = () => {
               <tr className="bg-gradient-to-r from-yellow-500 to-yellow-600 text-white">
                 <th className="py-4 px-6 text-left font-semibold">No</th>
                 <th className="py-4 px-6 text-left font-semibold">Foto</th>
-                <th className="py-4 px-6 text-left font-semibold">Nama Guide</th>
+                <th className="py-4 px-6 text-left font-semibold">Nama Porter</th>
                 <th className="py-4 px-6 text-left font-semibold">Aksi</th>
               </tr>
             </thead>
