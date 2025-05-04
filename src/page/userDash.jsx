@@ -56,7 +56,7 @@ const UserDash = () => {
 
   const handlePageChange = (page) => {
     if (page < 1 || page > pagination.last_page) return;
-    fetchTransaction(page, searchTerm);
+    fetchUsers(page, searchTerm);
   };
 
   const handleViewUser = (id) => {
@@ -78,7 +78,7 @@ const UserDash = () => {
               onChange={(e) => setSearchTerm(e.target.value)}
               onKeyDown={(e) => {
                 if (e.key === 'Enter') {
-                  fetchTransaction(1, searchTerm);
+                  fetchUsers(1, searchTerm);
                 }
               }}
             />
