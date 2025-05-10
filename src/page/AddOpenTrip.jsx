@@ -126,9 +126,20 @@ const AddOpenTrip = () => {
         hideProgressBar: true,
       });
 
-      setTimeout(() => {
-        navigate("/opentrip");
-      }, 3000);
+      setFormData({
+        mountain_name: "",
+        mountain_photo: null,
+        description: "",
+        equipment: "",
+        estimation_time: "",
+        price: "",
+        trip_type: "open",
+        traveling_time: "",
+        agenda: "",
+        id_guide: "",
+        porter_ids: [],
+      });
+
     } catch (error) {
       console.error("Error :", error.response);
       toast.error(error.response.data.message, {

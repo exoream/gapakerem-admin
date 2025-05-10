@@ -124,9 +124,18 @@ const AddPrivTrip = () => {
         hideProgressBar: true,
       });
 
-      setTimeout(() => {
-        navigate("/privatetrip");
-      }, 3000);
+      setFormData({
+        mountain_name: "",
+        mountain_photo: null,
+        description: "",
+        equipment: "",
+        estimation_time: "",
+        price: "",
+        price_per_day: "",
+        trip_type: "private",
+        id_guide: "",
+        porter_ids: [],
+      });
 
     } catch (error) {
       console.error("Error :", error.response);
