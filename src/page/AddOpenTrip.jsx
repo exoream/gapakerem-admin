@@ -126,9 +126,20 @@ const AddOpenTrip = () => {
         hideProgressBar: true,
       });
 
-      setTimeout(() => {
-        navigate("/opentrip");
-      }, 3000);
+      setFormData({
+        mountain_name: "",
+        mountain_photo: null,
+        description: "",
+        equipment: "",
+        estimation_time: "",
+        price: "",
+        trip_type: "open",
+        traveling_time: "",
+        agenda: "",
+        id_guide: "",
+        porter_ids: [],
+      });
+
     } catch (error) {
       console.error("Error :", error.response);
       toast.error(error.response.data.message, {
@@ -253,20 +264,22 @@ const AddOpenTrip = () => {
             </select>
           </div>
 
-          <div className="mt-10 grid grid-cols-3 items-center">
-            <label className="font-medium">Porter</label>
-            <div className="flex gap-4 justify-start items-center gap-5">
+          <div className="mt-10 grid grid-cols-3 items-start">
+            <label className="font-medium mt-1">Porter</label>
+            <div className="col-span-2 grid grid-cols-3 gap-x-2 gap-y-2">
               {porters.map((porter) => (
-                <div key={porter.id} className="flex items-center gap-2">
+                <label key={porter.id} className="flex px-4 py-2 border border-gray-300 items-center gap-2 rounded-full">
                   <input
                     type="checkbox"
                     name="porter_ids"
                     value={porter.id}
                     checked={formData.porter_ids.includes(porter.id)}
                     onChange={handleChange}
+                    className="appearance-none w-5 aspect-square shrink-0 rounded-full border border-gray-400 checked:bg-yellow-500 checked:border-yellow-500"
                   />
                   <span className="text-sm">{porter.name}</span>
-                </div>
+                </label>
+
               ))}
             </div>
           </div>
