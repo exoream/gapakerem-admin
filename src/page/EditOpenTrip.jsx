@@ -361,20 +361,22 @@ const EditOpenTrip = () => {
             </select>
           </div>
 
-          <div className="mt-10 grid grid-cols-3 items-center">
-            <label className="font-medium">porter</label>
-            <div className="flex gap-4 justify-start items-center gap-5">
+          <div className="mt-10 grid grid-cols-3 items-start">
+            <label className="font-medium mt-1">Porter</label>
+            <div className="col-span-2 grid grid-cols-3 gap-x-2 gap-y-2">
               {porters.map((porter) => (
-                <div key={porter.id} className="flex items-center gap-2">
+                <label key={porter.id} className="flex px-4 py-2 border border-gray-300 items-center gap-2 rounded-full">
                   <input
                     type="checkbox"
                     name="porter_ids"
                     value={porter.id}
                     checked={formData.porter_ids.includes(porter.id)}
                     onChange={handleChange}
+                    className="appearance-none w-5 aspect-square shrink-0 rounded-full border border-gray-400 checked:bg-yellow-500 checked:border-yellow-500"
                   />
                   <span className="text-sm">{porter.name}</span>
-                </div>
+                </label>
+
               ))}
             </div>
           </div>
@@ -387,7 +389,7 @@ const EditOpenTrip = () => {
                 type="submit"
                 className="bg-[#FFC100] text-white px-4 py-2 text-sm rounded-full font-semibold hover:bg-yellow-400 transition-all duration-200"
               >
-                Tambah
+                Update
               </button>
             )}
           </div>
